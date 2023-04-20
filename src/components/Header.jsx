@@ -37,13 +37,11 @@ export default function Header(){
                 <div className="flex flex-shrink-0 items-center">
                   <img
                     className="block h-10 w-auto lg:hidden"
-                    // src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
                     src="/src/assets/fork.png"
                     alt="Forkd"
                   />
                   <img
                     className="hidden h-10 w-auto lg:block"
-                    // src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
                     src="/src/assets/fork.png"
                     alt="Forkd"
                   />
@@ -85,8 +83,7 @@ export default function Header(){
                       <span className="sr-only">Open user menu</span>
                       <img
                         className="h-9 w-9 rounded-full"
-                        // src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                        src="/src/assets/avatars/c5.jpg"
+                        src="/src/assets/avatars/c7.jpg"
                         alt=""
                       />
                     </Menu.Button>
