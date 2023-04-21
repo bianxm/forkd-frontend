@@ -4,25 +4,28 @@ import {
   Route,
   RouterProvider,
   Outlet,
+  useLocation,
 } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import Recipe, { recipeLoader } from './components/Recipe' 
 import User, { userLoader } from './components/User'
+import { LogIn, SignUp } from './components/Authenticate'
 
 function RootLayout(){
+  let location = useLocation();
   return(
-    <div>
-      <header><Header /></header>
-      <main><Outlet /></main>
-      <footer><Footer /></footer>
+    <div className="flex flex-col justify-between w-screen h-screen">
+      {location.pathname !== '/login' && location.pathname !== '/signup' && <header className="flex-none"><Header /></header>}
+        <main className="flex-auto"><Outlet /></main>
+      {location.pathname !== '/login' && location.pathname !== '/signup' && <footer className="flex-none"><Footer /></footer>}
     </div>
   );
 }
 
 function Home(){
   return(
-    <div className="w-screen h-screen bg-stone-50">
+    <div className="bg-stone-50">
       <h2>Welcome</h2>
       <p>Boilerplate</p>
     </div>
@@ -45,8 +48,8 @@ const router = createBrowserRouter(
       </Route>
       
       {/* public only routes */}
-      <Route path="login" element={<div>LOGIN PAGE HERE</div>}></Route>
-      <Route path="signup" element={<div>SIGN UP PAGE HERE</div>}></Route>
+      <Route path="login" element={<LogIn />} />
+      <Route path="signup" element={<SignUp />} />
 
       {/* private only routes */}
       <Route path="new" element={<div>FIGURE OUT MODAL POP UP IN PLACE</div>}></Route>
