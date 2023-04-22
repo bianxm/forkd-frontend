@@ -5,12 +5,17 @@ import {
   RouterProvider,
   Outlet,
   useLocation,
+  Navigate,
 } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import Recipe, { recipeLoader } from './components/Recipe' 
 import User, { userLoader } from './components/User'
-import { LogIn, SignUp } from './components/Authenticate'
+import { LogIn } from './components/LogIn'
+import { SignUp } from './components/SignUp'
+import Home from './components/Home'
+import NotFound from './components/NotFound'
+import AuthProvider, { useAuth } from './contexts/AuthProvider'
 
 function RootLayout(){
   let location = useLocation();
@@ -23,13 +28,15 @@ function RootLayout(){
   );
 }
 
-function Home(){
-  return(
-    <div className="bg-stone-50">
-      <h2>Welcome</h2>
-      <p>Boilerplate</p>
-    </div>
-  );
+function PublicRoute({children}){
+  const { user } = useAuth();
+  if (user===undefined){
+    return null;
+  } else if (user){
+    return <Navigate to="/" />
+  } else{
+    return children;
+  }
 }
 
 const router = createBrowserRouter(
@@ -40,16 +47,18 @@ const router = createBrowserRouter(
         <Route index 
           element={<User />} 
           loader={userLoader}
-          errorElement={<div>404 NOT FOUND</div>}/>
+          errorElement={<NotFound />}/>
         <Route path=":recipe_id" 
           element={<Recipe />}
           loader={recipeLoader}
-          errorElement={<div>404 RECIPE NOT FOUND</div>} />
+          errorElement={<NotFound />} />
       </Route>
       
       {/* public only routes */}
-      <Route path="login" element={<LogIn />} />
-      <Route path="signup" element={<SignUp />} />
+      <Route path="login" element={<PublicRoute><LogIn /></PublicRoute>} />
+      {/* <Route path="login" element={<LogIn />} />
+      <Route path="signup" element={<SignUp />} /> */}
+      <Route path="signup" element={<PublicRoute><SignUp /></PublicRoute>} />
 
       {/* private only routes */}
       <Route path="new" element={<div>FIGURE OUT MODAL POP UP IN PLACE</div>}></Route>
@@ -59,7 +68,9 @@ const router = createBrowserRouter(
 
 function App() {
   return (
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   );
 }
 

@@ -1,18 +1,30 @@
 import { useLoaderData, Link } from 'react-router-dom'
 import { TrashIcon } from '@heroicons/react/24/solid'
-import { PencilIcon } from '@heroicons/react/24/outline'
+import { PencilIcon, Cog8ToothIcon } from '@heroicons/react/24/outline'
+import apiReq from '../ApiClient'
+import { useAuth } from '../contexts/AuthProvider'
 
 export default function User(){
   const user_data = useLoaderData()
+  const { user } = useAuth();
+  // console.log(user_data)
   return(
     <div className="h-full bg-stone-50 p-8 flex-col sm:px-44 sm:py-16">
       <div className="flex items-end w-full pl-10">
-        <div className="relative">
+        <div className="relative group">
+          { user.username===user_data.username ?
+          <Link>
         <img 
           className="rounded-full block h-36 w-36"
           src="/src/assets/avatars/c7.jpg"
         />
-        <button className="absolute bg-gray-300 bottom-0 right-0 rounded-full w-10 h-10 mr-2 mb-2 p-2.5"><PencilIcon className="text-gray-700"/></button>
+        <div className="absolute hidden group-hover:block bg-gray-300 bottom-0 right-0 rounded-full w-10 h-10 mr-2 mb-2 p-2.5"><Cog8ToothIcon className="text-gray-700"/></div>
+        </Link>:
+        <img 
+          className="rounded-full block h-36 w-36"
+          src="/src/assets/avatars/c7.jpg"
+        />
+        }
         </div>
         <div className="basis-10/12">
           <h2 className="text-3xl font-bold leading-7 text-gray-900 ml-3">{user_data.username}</h2>
@@ -24,6 +36,7 @@ export default function User(){
         {user_data.recipes.map(recipe => (
           <RecipeCard recipe={recipe} key={recipe.id}/>
         ))}
+        {/* IF IT'S LOGGED IN USER'S PAGE, THERE'S ADDITIONAL SHARED_WITH_ME */}
         </ul>
       </div>
     </div>
@@ -56,11 +69,11 @@ const RecipeCard = ({ recipe }) => {
 
 export const userLoader = async ({ params }) => {
   const { username } = params; 
-  const res = await fetch('/api/users/' + username);
+  const res = await apiReq('get', `/api/users/${username}`);
 
-  if(!res.ok){
-    throw Error('User not found');
+  if(res.ok || res.status == 401){
+    return res.json;
   }
 
-  return res.json();
+  throw Error('User not found');
 };

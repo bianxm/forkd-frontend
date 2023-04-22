@@ -1,42 +1,41 @@
 import { useLoaderData, Link } from 'react-router-dom'
+import apiReq from '../ApiClient'
+import { useAuth } from '../contexts/AuthProvider';
+
 export const recipeLoader = async ({ params }) => {
   const { recipe_id, username } = params;
-  const res = await fetch('/api/recipes/' + recipe_id + '?owner=' + username);
-
-  if(!res.ok){
-    throw Error('Recipe not found');
+  const res = await apiReq('get',`/api/recipes/${recipe_id}?owner=${username}`);
+  
+  if(res.ok || res.status == 401){
+    return res.json;
   }
 
-  return res.json();
+  throw Error('Recipe not found');
 };
 
 export default function Recipe(){
-  const recipe_data = useLoaderData()
+  const recipe_data = useLoaderData();
+  const { user } = useAuth();
   console.log(recipe_data);
   return(
     <div className="w-screen bg-stone-50 p-8">
       <div className="lg:flex lg:items-center lg:justify-between pb-5">
         <div className="min-w-0 flex-1">
-          <Link to={`/${recipe_data.owner}`}><h3 className="text-xl hover:text-indigo-800">{recipe_data.owner}/</h3></Link>
+          <h3 className="text-xl hover:text-indigo-800"><Link to={`/${recipe_data.owner}`}>{recipe_data.owner}/</Link></h3>
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">{recipe_data.timeline_items.edits[0].title}</h2>
           <div className="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
             <div className="mt-0 text-sm text-gray-500">Last modified on {recipe_data.last_modified}</div>
             {recipe_data.forked_from && <div className="mt-0 text-sm text-gray-500">Forked from {recipe_data.forked_from}</div>}
             {recipe_data.source_url && <div className="mt-0 text-sm text-gray-500">Adapted from {recipe_data.source_url}</div>}
           </div>
-          <button className="px-3 py-1 border-2 border-gray-600 text-gray-600 hover:text-white hover:bg-gray-600 m-1 rounded-lg">Fork</button>
-          <button className="text-red-700 border-2 border-red-700 hover:bg-red-700 hover:text-white px-3 py-1 m-1 rounded-lg">Delete</button>
+          {user && <button className="px-3 py-1 border-2 border-gray-600 text-gray-600 hover:text-white hover:bg-gray-600 m-1 rounded-lg">Fork</button>}
+          {user.username===recipe_data.owner && <button className="text-red-700 border-2 border-red-700 hover:bg-red-700 hover:text-white px-3 py-1 m-1 rounded-lg">Delete</button>}
         </div>
       </div>
       <div className="flex flex-wrap">
         <RecipeDetails recipe={recipe_data} />
         <RecipeTimeline recipe={recipe_data} />
       </div>
-      {/* 
-      PUT BUTTONS FOR FORKING AND DELETING HERE
-      <div className="mt-5 flex lg:ml-4 lg:mt-0">
-        <span></span>
-      </div> */}
     </div>
   );
 }

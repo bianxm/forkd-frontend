@@ -1,6 +1,9 @@
 import { Fragment } from 'react'
+import { Link, useNavigate } from 'react-router-dom';
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 // import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon } from '@heroicons/react/24/outline'
+import { useAuth } from '../contexts/AuthProvider';
 
 // const navigation = [
 //   { name: 'Dashboard', href: '#', current: true },
@@ -14,10 +17,12 @@ function classNames(...classes) {
 }
 
 export default function Header(){
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
     return(
-        <Disclosure as="nav" className="bg-gray-800">
-      {({ open }) => (
-        <>
+        // <Disclosure as="nav" className="bg-gray-800">
+      // {({ open }) => (
+        <div className="bg-gray-700">
           {/* <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8"> */}
           <div className="mx-auto px-2 sm:px-6 lg:px-8">
             <div className="relative flex h-16 items-center justify-between">
@@ -34,6 +39,7 @@ export default function Header(){
               {/* </div> */}
               {/* <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start"> */}
               <div className="flex flex-1 sm:items-stretch sm:justify-start">
+                <Link to="/">
                 <div className="flex flex-shrink-0 items-center">
                   <img
                     className="block h-10 w-auto lg:hidden"
@@ -47,6 +53,7 @@ export default function Header(){
                   />
                   <h1 className="text-stone-50 text-2xl ml-2 font-serif">Forkd.</h1>
                 </div>
+                  </Link>
                 {/* <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
                     {navigation.map((item) => (
@@ -79,13 +86,18 @@ export default function Header(){
                 {/* Profile dropdown */}
                 <Menu as="div" className="relative ml-3">
                   <div>
-                    <Menu.Button className="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                    <Menu.Button className="flex rounded-full bg-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                    { user ?<>
                       <span className="sr-only">Open user menu</span>
                       <img
                         className="h-9 w-9 rounded-full"
                         src="/src/assets/avatars/c7.jpg"
                         alt=""
-                      />
+                      /> </>:
+                      <><span className="sr-only">Open login menu</span>
+                      <Bars3Icon className="block h-8 w-8 text-white" aria-hidden="true" />
+                      </>
+                    }
                     </Menu.Button>
                   </div>
                   <Transition
@@ -98,14 +110,14 @@ export default function Header(){
                     leaveTo="transform opacity-0 scale-95"
                   >
                     <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      {user ? <>
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="#"
+                          <Link to={`/${user.username}`}
                             className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                           >
                             Your Profile
-                          </a>
+                          </Link>
                         )}
                       </Menu.Item>
                       <Menu.Item>
@@ -121,13 +133,37 @@ export default function Header(){
                       <Menu.Item>
                         {({ active }) => (
                           <a
-                            href="#"
+                            onClick={(e) => {e.preventDefault();
+                                              logout();
+                                              navigate(0)}}
                             className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                           >
-                            Sign out
+                            Log out
                           </a>
                         )}
                       </Menu.Item>
+                      </> : <>
+                      <Menu.Item>
+                        {({ active }) => (
+                          <Link
+                            to="/signup"
+                            className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                          >
+                          Sign up
+                          </Link>
+                        )}
+                      </Menu.Item>
+                      <Menu.Item>
+                        {({ active }) => (
+                          <Link
+                            to="/login"
+                            className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                          >
+                          Log in
+                          </Link>
+                        )}
+                      </Menu.Item>
+                      </>}
                     </Menu.Items>
                   </Transition>
                 </Menu>
@@ -153,8 +189,8 @@ export default function Header(){
               ))}
             </div>
           </Disclosure.Panel> */}
-        </>
-      )}
-    </Disclosure>
+        </div>
+      // )}
+    // </Disclosure>
           );
 }
