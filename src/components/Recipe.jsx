@@ -16,6 +16,7 @@ export const recipeLoader = async ({ params }) => {
 export default function Recipe(){
   const recipe_data = useLoaderData();
   const { user } = useAuth();
+  const is_viewer_owner = user && user.username === recipe_data.owner
   console.log(recipe_data);
   return(
     <div className="w-screen bg-stone-50 p-8">
@@ -29,7 +30,7 @@ export default function Recipe(){
             {recipe_data.source_url && <div className="mt-0 text-sm text-gray-500">Adapted from {recipe_data.source_url}</div>}
           </div>
           {user && <button className="px-3 py-1 border-2 border-gray-600 text-gray-600 hover:text-white hover:bg-gray-600 m-1 rounded-lg">Fork</button>}
-          {user.username===recipe_data.owner && <button className="text-red-700 border-2 border-red-700 hover:bg-red-700 hover:text-white px-3 py-1 m-1 rounded-lg">Delete</button>}
+          {is_viewer_owner && <button className="text-red-700 border-2 border-red-700 hover:bg-red-700 hover:text-white px-3 py-1 m-1 rounded-lg">Delete</button>}
         </div>
       </div>
       <div className="flex flex-wrap">

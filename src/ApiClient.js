@@ -25,6 +25,6 @@ export default async function(method, url, query, body){
     return {
         ok: response.ok,
         status: response.status,
-        json: response.status !==204 ? await response.json() : null
+        json: response.status!==204 ? await response.json() : null
     };
 };

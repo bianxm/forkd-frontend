@@ -26,7 +26,7 @@ export const LogIn = () => {
         const result = await login(loginData.login, loginData.password);
         if(result !== 'error' || result !== 'fail'){
             console.log(result);
-            // navigate(`/${result.username}`);
+            navigate(`/${result.username}`);
         }
         // const response = await fetch("/api/tokens", {
         //     method: "POST",

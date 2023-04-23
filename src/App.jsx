@@ -16,13 +16,18 @@ import { SignUp } from './components/SignUp'
 import Home from './components/Home'
 import NotFound from './components/NotFound'
 import AuthProvider, { useAuth } from './contexts/AuthProvider'
+import FlashProvider from './contexts/FlashProvider'
+import FlashMessage from './components/FlashMessage'
 
 function RootLayout(){
   let location = useLocation();
   return(
-    <div className="flex flex-col justify-between w-screen h-screen">
+    <div className="relative flex flex-col justify-between w-screen h-screen">
       {location.pathname !== '/login' && location.pathname !== '/signup' && <header className="flex-none"><Header /></header>}
-        <main className="flex-auto"><Outlet /></main>
+        <main className="relative flex-auto">
+          <FlashMessage />
+          <Outlet />
+        </main>
       {location.pathname !== '/login' && location.pathname !== '/signup' && <footer className="flex-none"><Footer /></footer>}
     </div>
   );
@@ -68,9 +73,11 @@ const router = createBrowserRouter(
 
 function App() {
   return (
+    <FlashProvider>
     <AuthProvider>
       <RouterProvider router={router} />
     </AuthProvider>
+    </FlashProvider>
   );
 }
 

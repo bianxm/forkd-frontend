@@ -13,10 +13,12 @@ This is the frontend repo corresponding to the backend [here](https://github.com
 ## Roadmap
 ### MVP
 - [ ] Public User
-  - [ ] View user profiles
+  - [x] View user profiles
   - [ ] View public recipes
+  - [x] Sign up, log in
 - [ ] Authenticated User
-  - [ ] Create. edit, delete
+  - [ ] Create, edit, delete
+  - [x] Log out
 ### 2.0
 - Experiment-only collaborators can submit edits for owner approval
 - Saving experiment drafts
