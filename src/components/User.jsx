@@ -57,7 +57,7 @@ const OwnRecipes = ({ user_data }) => {
       </Tab.List>
       <Tab.Panels>
         <Tab.Panel>
-          <button className="bg-lime-500 hover:bg-lime-400 text-bold w-full rounded-lg m-5 py-2">+ New Recipe</button>
+          <Link to="/new"><button className="bg-lime-500 hover:bg-lime-400 text-bold w-full rounded-lg m-5 py-2">+ New Recipe</button></Link>
           <ul role="list">
           {user_data.recipes.map(recipe => (
             <RecipeCard recipe={recipe} key={recipe.id} is_viewer_owner={true}/>
@@ -65,7 +65,7 @@ const OwnRecipes = ({ user_data }) => {
           </ul>
         </Tab.Panel>
         <Tab.Panel>
-          <ul role="list">
+          <ul role="list" className="py-8">
           {user_data.shared_with_me.length > 0 ?
           user_data.shared_with_me.map(recipe => (
             <RecipeCard recipe={recipe} key={recipe.id} is_viewer_owner={false}/>

@@ -18,6 +18,7 @@ import NotFound from './components/NotFound'
 import AuthProvider, { useAuth } from './contexts/AuthProvider'
 import FlashProvider from './contexts/FlashProvider'
 import FlashMessage from './components/FlashMessage'
+import NewRecipe from './components/NewRecipe'
 
 function RootLayout(){
   let location = useLocation();
@@ -44,6 +45,17 @@ function PublicRoute({children}){
   }
 }
 
+function PrivateRoute({children}){
+  const { user } = useAuth();
+  if (user===undefined){
+    return null;
+  } else if (user){
+    return children;
+  } else{
+    return <Navigate to="/" />
+  }
+}
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>
@@ -61,12 +73,10 @@ const router = createBrowserRouter(
       
       {/* public only routes */}
       <Route path="login" element={<PublicRoute><LogIn /></PublicRoute>} />
-      {/* <Route path="login" element={<LogIn />} />
-      <Route path="signup" element={<SignUp />} /> */}
       <Route path="signup" element={<PublicRoute><SignUp /></PublicRoute>} />
 
       {/* private only routes */}
-      <Route path="new" element={<div>FIGURE OUT MODAL POP UP IN PLACE</div>}></Route>
+      <Route path="new" element={<PrivateRoute><NewRecipe /></PrivateRoute>}></Route>
     </Route>
   )
 );

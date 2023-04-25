@@ -116,7 +116,7 @@ export default function Header(){
                           <Link to={`/${user.username}`}
                             className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                           >
-                            Your Profile
+                            {user.username}
                           </Link>
                         )}
                       </Menu.Item>
