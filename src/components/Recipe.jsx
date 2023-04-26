@@ -1,4 +1,4 @@
-import { useLoaderData, Link } from 'react-router-dom'
+import { useLoaderData, Link, useNavigate } from 'react-router-dom'
 import apiReq from '../ApiClient'
 import { useAuth } from '../contexts/AuthProvider';
 import { PencilIcon } from '@heroicons/react/24/solid';
@@ -8,6 +8,8 @@ import * as Diff2Html from 'diff2html';
 import * as Diff from 'diff';
 import 'diff2html/bundles/css/diff2html.min.css';
 import { TrashIcon } from '@heroicons/react/24/solid'
+import { useFlash } from '../contexts/FlashProvider';
+import { PermissionsModal } from './PermissionsModal';
 
 export const recipeLoader = async ({ params }) => {
   const { recipe_id, username } = params;
@@ -21,11 +23,28 @@ export const recipeLoader = async ({ params }) => {
 };
 
 export default function Recipe(){
+  const navigate = useNavigate();
   const recipe_data = useLoaderData();
   const { user } = useAuth();
   const is_viewer_owner = user && user.username === recipe_data.owner
   console.log(recipe_data);
   const [isPermissionsOpen, setIsPermissionsOpen] = useState(false);
+  async function handleFork(e){
+    e.preventDefault();
+    const response = await apiReq('POST','/api/recipes','',{
+      title: recipe_data.timeline_items.edits[0].title,
+      description: recipe_data.timeline_items.edits[0].description,
+      ingredients: recipe_data.timeline_items.edits[0].ingredients,
+      instructions: recipe_data.timeline_items.edits[0].instructions,
+      url: recipe_data.source_url,
+      forked_from: recipe_data.id
+    });
+    if(response.status===201){
+        navigate(`/${user.username}`);
+    }else{
+        flash('Cannot extract recipe','bg-red-100 border border-red-400 text-red-700');
+    }
+  }
   return(
     <div className="relative w-screen bg-stone-50 p-8">
       <div className="lg:flex lg:items-center lg:justify-between pb-5">
@@ -37,32 +56,31 @@ export default function Recipe(){
             {recipe_data.forked_from && <div className="mt-0 text-sm text-gray-500">Forked from {recipe_data.forked_from}</div>}
             {recipe_data.source_url && <div className="mt-0 text-sm text-gray-500">Adapted from {recipe_data.source_url}</div>}
           </div>
-          {user && <button className="px-3 py-1 border-2 border-gray-600 text-gray-600 hover:text-white hover:bg-gray-600 m-1 rounded-lg">Fork</button>}
+          {user && <button onClick={handleFork} className="px-3 py-1 border-2 border-gray-600 text-gray-600 hover:text-white hover:bg-gray-600 m-1 rounded-lg">Fork</button>}
           {is_viewer_owner && <button className="text-red-700 border-2 border-red-700 hover:bg-red-700 hover:text-white px-3 py-1 m-1 rounded-lg">Delete</button>}
-          {is_viewer_owner && <button className="text-indigo-700 border-2 border-indigo-700 hover:bg-indigo-600 hover:text-white px-3 py-1 m-1 rounded-lg" onClick={()=>setIsPermissionsOpen(true)}>Share</button>}
+          {recipe_data.can_edit && <button className="text-indigo-700 border-2 border-indigo-700 hover:bg-indigo-600 hover:text-white px-3 py-1 m-1 rounded-lg" onClick={()=>setIsPermissionsOpen(true)}>Share</button>}
           <Dialog open={isPermissionsOpen} onClose={()=>setIsPermissionsOpen(false)} >
-            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+            <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
             <div className="fixed inset-0 flex items-center justify-center">
-            <Dialog.Panel className="mx-auto max-w-sm rounded bg-green-200">
-              <Dialog.Title>Recipe Permissions</Dialog.Title>
-              HELLO
-              <form>
-                <input type="text"/>
-              </form>
+            <Dialog.Panel className="flex flex-col mx-auto max-w-sm rounded-lg bg-gray-50 p-4">
+              <Dialog.Title className="text-base font-semibold leading-6 text-gray-900">{`Share "${recipe_data.timeline_items.edits[0].title}"`}</Dialog.Title>
+              <PermissionsModal recipeId={recipe_data.id} />
             </Dialog.Panel>
             </div>
           </Dialog>
         </div>
       </div>
       <div className="flex flex-wrap">
-        <RecipeDetails recipe={recipe_data} is_viewer_owner={is_viewer_owner} />
-        <RecipeTimeline recipe={recipe_data} is_viewer_owner={is_viewer_owner} />
+        <RecipeDetails recipe={recipe_data} />
+        <RecipeTimeline recipe={recipe_data} />
       </div>
     </div>
   );
 }
 
-const RecipeDetails = ({ recipe, is_viewer_owner }) => {
+const RecipeDetails = ({ recipe }) => {
+  const flash = useFlash();
+  const navigate = useNavigate();
   const recipe_details = recipe.timeline_items.edits[0]
   const [isEditing, setIsEditing] = useState(false);
   const [recipeEditData, setRecipeEditData] = useState({
@@ -74,22 +92,31 @@ const RecipeDetails = ({ recipe, is_viewer_owner }) => {
   const handleEditClick = () => {
     setIsEditing(true);
   };
-  const handleEditSubmit = (e) => {
+  async function handleEditSubmit(e){
     e.preventDefault();
     setIsEditing(false);
     // check that *something* has been changed
-    console.log(recipe_details.description == recipeEditData.description)
-    console.log(recipe_details.ingredients == recipeEditData.ingredients)
-    console.log(recipe_details.instructions == recipeEditData.instructions)
-    if(((recipe_details.description === recipeEditData.description) &&
+    // console.log(recipe_details.description == recipeEditData.description)
+    // console.log(recipe_details.ingredients == recipeEditData.ingredients)
+    // console.log(recipe_details.instructions == recipeEditData.instructions)
+    if(recipe_details.title === recipeEditData.title &&
+    ((recipe_details.description === recipeEditData.description) &&
     (recipe_details.ingredients === recipeEditData.ingredients)) &&
     (recipe_details.instructions === recipeEditData.instructions)){
       console.log('Do nothing!');
       return;
     }
-    console.log('api call');
     // send API call
-  };
+    const response = await apiReq('PUT',`/api/recipes/${recipe.id}`,'', recipeEditData);
+    // console.log('api call');
+    if(response.status===201){
+      // add to timeline
+      navigate(0); 
+    } else{
+      flash('Error adding edit.','bg-red-100 border border-red-400 text-red-700');
+    }
+  }
+
   const handleEditChange = (e) => {
     e.target.style.height = 'inherit';
     e.target.style.height = `${e.target.scrollHeight}px`;
@@ -144,7 +171,7 @@ const RecipeDetails = ({ recipe, is_viewer_owner }) => {
         <img src="/src/assets/patterns/japanese.png" className="object-cover mix-blend-multiply h-full w-full"/>
       </div>
       <div className="relative">
-      {is_viewer_owner && <button hidden={isEditing} onClick={handleEditClick} className="absolute p-2 right-0 mx-4 rounded-full text-center outline outline-2 outline-gray-500 hover:bg-gray-500"><PencilIcon className="text-gray-500 w-6 h-6 hover:text-white"/></button>}
+      {recipe.can_edit && <button hidden={isEditing} onClick={handleEditClick} className="absolute p-2 right-0 mx-4 rounded-full text-center outline outline-2 outline-gray-500 hover:bg-gray-500"><PencilIcon className="text-gray-500 w-6 h-6 hover:text-white"/></button>}
       <div className="m-4 whitespace-break-spaces">{recipeEditData.description}</div>
       <div className="w-full p-2">
         <h4 className="font-serif text-bold text-xl"> Ingredients</h4>
@@ -179,7 +206,9 @@ const RecipeDetails = ({ recipe, is_viewer_owner }) => {
   //   </div>
 };
 
-const RecipeTimeline = ({recipe, is_viewer_owner}) => {
+const RecipeTimeline = ({recipe}) => {
+  const flash = useFlash();
+  const navigate = useNavigate();
   const edits = recipe.timeline_items.edits
   for(let i=0; i<edits.length-1; i++){
     const prev = edits[i+1];
@@ -200,7 +229,7 @@ const RecipeTimeline = ({recipe, is_viewer_owner}) => {
     }
   }
   // mix together experiment and edits, sort by commit_date
-  const items = recipe.timeline_items.experiments.concat(edits.slice(0,-1)).sort((a, b)=>(a.commit_date < b.commit_date)?1:-1);
+  const [items, setItems] = useState(recipe.timeline_items.experiments? recipe.timeline_items.experiments.concat(edits.slice(0,-1)).sort((a, b)=>(a.commit_date < b.commit_date)?1:-1) : recipe.timeline_items.edits.slice(0,-1));
   const [newExperimentForm, setNewExperimentForm] = useState({
     commit_msg : "",
     notes: "",
@@ -208,14 +237,30 @@ const RecipeTimeline = ({recipe, is_viewer_owner}) => {
   const handleExpChange = (e) => {
     setNewExperimentForm(oldData => {return({...oldData, [e.target.name]: e.target.value});});
   };
+
+  async function submitNewExperiment(e) {
+    e.preventDefault();
+    console.log(newExperimentForm);
+    const response = await apiReq('POST',`/api/recipes/${recipe.id}`,'', newExperimentForm);
+    // const json = await response.json;
+    // console.log(json);
+    if(response.status===200){
+      // setItems(oldData => [json, ...oldData]);
+      // console.log(items);
+      navigate(0); 
+    } else{
+      flash('Error adding experiment.','bg-red-100 border border-red-400 text-red-700')
+    }
+  }
+
   return (
     <div className="md:w-5/12 w-full bg-white p-4">
       <h3 className="text-2xl leading-5 font-bold font-serif">Timeline</h3>
-      {is_viewer_owner && 
+      {recipe.can_experiment && 
       <Disclosure>
         <Disclosure.Button className="outline outline-2 outline-lime-500 hover:bg-lime-500 text-bold rounded-lg my-5 mx-2 py-2 px-16">Add experiment</Disclosure.Button>
         <Disclosure.Panel className="flex flex-col bg-stone-100 p-4 pr-6 rounded-lg">
-          <form onSubmit={(e)=>e.preventDefault()}>
+          <form onSubmit={submitNewExperiment}>
             <div><input type="text" required placeholder="Commit message" name="commit_msg" value={newExperimentForm.commit_msg} onChange={handleExpChange} className="w-full m-2 p-2" /></div>
             <div><textarea name="notes" placeholder="Notes" value={newExperimentForm.notes} onChange={handleExpChange} className="w-full m-2 p-2"/></div>
             <div className="text-center"><button type="submit" className="bg-lime-500 hover:bg-lime-400 text-bold rounded-lg mx-2 py-1 px-8">Save</button></div>
@@ -226,26 +271,47 @@ const RecipeTimeline = ({recipe, is_viewer_owner}) => {
       {recipe.timeline_items.edits.slice(0,-1).map(edit => (<Edit edit={edit} key={edit.id}/>))} */}
       {items.map(item => {
         if(item.item_type==='edit'){return <Edit edit={item} key={`ed${item.id}`} canEdit={recipe.can_edit}/>}
-        else if(item.item_type==='experiment'){return <Experiment experiment={item} key={`exp${item.id}`}/>}
+        else if(item.item_type==='experiment'){return <Experiment experiment={item} key={`exp${item.id}`} canExperiment={recipe.can_experiment} items={items} setItems={setItems}/>}
       })}
       <Created edit={edits[edits.length-1]}/>
     </div>
   );
 }
 
-const Experiment = ({experiment}) => {
+const Experiment = ({experiment, canExperiment, items, setItems }) => {
   const { user } = useAuth();
-  console.log('user',user);
+  // console.log('user',user);
+  const navigate = useNavigate();
+  const flash = useFlash();
+
+  async function deleteExperiment(e){
+    if(confirm("Are you sure you want to delete this experiment? This can't be undone")){
+      const response = await apiReq('DELETE', `/api/experiments/${experiment.id}`);
+      if(response.status==200){
+        setItems(items.filter(item => !(item.item_type==='experiment' && item.id===experiment.id)));
+        flash('Experiment deleted','bg-green-100 border border-green-400 text-green-700');
+        // navigate(0);
+      }else{
+        flash('Something went wrong, sorry','bg-red-100 border border-red-400 text-red-700');
+      }
+    }
+  }
+
   return (
     // <div>{experiment.commit_date}</div>
   <Disclosure>
-    <Disclosure.Button as="div" className="group relative flex flex-col hover:bg-indigo-50">
-      { (user && experiment.commit_by === user.id ) && <button className="h-6 w-6 rounded-lg p-1
+    <Disclosure.Button as="div" className="flex flex-col hover:bg-indigo-50">
+      {/* { canExperiment && <button className="h-6 w-6 rounded-lg p-1
         absolute top-1/3 right-0 mx-5 hidden 
         group-hover:block border-2 border-red-700 text-red-700
-        hover:bg-red-700 hover:text-white" onClick={()=>console.log('delete clicked')}><TrashIcon /></button>}
+        hover:bg-red-700 hover:text-white" onClick={()=>console.log('delete clicked')}><TrashIcon /></button>} */}
       <small>{experiment.commit_date}</small><h5 className="text-lg">{experiment.commit_msg}</h5></Disclosure.Button>
-    <Disclosure.Panel>{experiment.notes}</Disclosure.Panel>
+    <Disclosure.Panel className="relative">
+      { canExperiment && <button className="h-6 w-6 rounded-lg p-1
+        absolute top-0 right-0 mx-5 block border-2 border-red-700 text-red-700
+        hover:bg-red-700 hover:text-white" onClick={deleteExperiment}><TrashIcon /></button>}
+      {experiment.notes}
+    </Disclosure.Panel>
   </Disclosure>
   );
 };
@@ -261,14 +327,31 @@ const Created = ({edit}) => {
 };
 
 const Edit = ({edit, canEdit}) => {
+  const navigate = useNavigate();
+  const flash = useFlash();
+  async function deleteEdit(e){
+    if(confirm("Are you sure you want to delete this edit? This can't be undone")){
+      const response = await apiReq('DELETE', `/api/edits/${edit.id}`);
+      if(response.status==200){
+        navigate(0);
+      }else{
+        flash('Something went wrong, sorry','bg-red-100 border border-red-400 text-red-700');
+      }
+    }
+  }
   return (
   <Disclosure>
     <Disclosure.Button as="div" className="group relative flex flex-col hover:bg-indigo-50">
-      {canEdit && <button className="h-6 w-6 rounded-lg p-1
+      {/* {canEdit && <button className="h-6 w-6 rounded-lg p-1
         absolute top-1/3 right-0 mx-5 hidden 
         group-hover:block border-2 border-red-700 text-red-700
-        hover:bg-red-700 hover:text-white"><TrashIcon /></button>}
+        hover:bg-red-700 hover:text-white"><TrashIcon /></button>} */}
       <small>{edit.commit_date}</small><h5 className="text-lg">Recipe edited</h5></Disclosure.Button>
-    <Disclosure.Panel className="px-4"><div dangerouslySetInnerHTML={{__html: edit.diffHtml}} /></Disclosure.Panel>
+    <Disclosure.Panel className="px-4 relative">
+      { canEdit && <button className="h-6 w-6 rounded-lg p-1
+        absolute top-0 right-0 mx-5 block border-2 border-red-700 text-red-700
+        hover:bg-red-700 hover:text-white" onClick={deleteEdit}><TrashIcon /></button>}
+      <div dangerouslySetInnerHTML={{__html: edit.diffHtml}} />
+    </Disclosure.Panel>
   </Disclosure>);
 };

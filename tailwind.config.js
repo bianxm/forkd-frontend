@@ -10,6 +10,7 @@ export default {
   },
   plugins: [
     require('@headlessui/tailwindcss'),
+    // require('@tailwindcss/forms'),
     plugin(function({ addVariant }){
       addVariant('contentEditable','&[contentEditable="true"]')
     })
