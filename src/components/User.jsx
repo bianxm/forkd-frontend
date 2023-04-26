@@ -70,7 +70,7 @@ const OwnRecipes = ({ user_data }) => {
         <Tab.Panel>
           <ul role="list" className="py-8">
           {user_data.shared_with_me.length > 0 ?
-          user_data.shared_with_me.map(recipe => (
+          user_data.shared_with_me.sort((a,b)=>(a.last_modified < b.last_modified)?1:-1).map(recipe => (
             <RecipeCard recipe={recipe} key={recipe.id} is_viewer_owner={false}/>
           )) : <div className="py-4">Nothing shared with you yet!</div>}
           </ul>

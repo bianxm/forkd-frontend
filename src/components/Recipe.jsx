@@ -62,7 +62,7 @@ export default function Recipe(){
           <Dialog open={isPermissionsOpen} onClose={()=>setIsPermissionsOpen(false)} >
             <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
             <div className="fixed inset-0 flex items-center justify-center">
-            <Dialog.Panel className="flex flex-col mx-auto max-w-sm rounded-lg bg-gray-50 p-4">
+            <Dialog.Panel className="flex flex-col mx-auto rounded-lg bg-gray-50 p-4">
               <Dialog.Title className="text-base font-semibold leading-6 text-gray-900">{`Share "${recipe_data.timeline_items.edits[0].title}"`}</Dialog.Title>
               <PermissionsModal recipeId={recipe_data.id} />
             </Dialog.Panel>
