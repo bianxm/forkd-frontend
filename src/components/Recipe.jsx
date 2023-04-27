@@ -14,9 +14,20 @@ import { PermissionsModal } from './PermissionsModal';
 export const recipeLoader = async ({ params }) => {
   const { recipe_id, username } = params;
   const res = await apiReq('get',`/api/recipes/${recipe_id}?owner=${username}`);
+
   
   if(res.ok || res.status == 401){
-    return res.json;
+    // loop through timeline items and convert commit_date to Date objects
+    const data = res.json;
+    for(const item of data.timeline_items.edits){
+      item.commit_date = new Date(item.commit_date);
+    }
+    if(data.timeline_items.experiments){
+      for(const item of data.timeline_items.experiments){
+        item.commit_date = new Date(item.commit_date);
+      }
+    }
+    return data;
   }
 
   throw Error('Recipe not found');
@@ -230,6 +241,7 @@ const RecipeTimeline = ({recipe}) => {
   }
   // mix together experiment and edits, sort by commit_date
   const [items, setItems] = useState(recipe.timeline_items.experiments? recipe.timeline_items.experiments.concat(edits.slice(0,-1)).sort((a, b)=>(a.commit_date < b.commit_date)?1:-1) : recipe.timeline_items.edits.slice(0,-1));
+  console.log(items);
   const [newExperimentForm, setNewExperimentForm] = useState({
     commit_msg : "",
     notes: "",
@@ -305,7 +317,7 @@ const Experiment = ({experiment, canExperiment, items, setItems }) => {
         absolute top-1/3 right-0 mx-5 hidden 
         group-hover:block border-2 border-red-700 text-red-700
         hover:bg-red-700 hover:text-white" onClick={()=>console.log('delete clicked')}><TrashIcon /></button>} */}
-      <small>{experiment.commit_date}</small><h5 className="text-lg">{experiment.commit_msg}</h5></Disclosure.Button>
+      <small>{experiment.commit_date.toLocaleString()}</small><h5 className="text-lg">{experiment.commit_msg}</h5></Disclosure.Button>
     <Disclosure.Panel className="relative">
       { canExperiment && <button className="h-6 w-6 rounded-lg p-1
         absolute top-0 right-0 mx-5 block border-2 border-red-700 text-red-700
@@ -320,7 +332,7 @@ const Created = ({edit}) => {
   return (
     // <div>{experiment.commit_date}</div>
   <Disclosure>
-    <Disclosure.Button as="div" className="flex flex-col hover:bg-indigo-50"><small>{edit.commit_date}</small><h5 className="text-lg">Recipe created</h5></Disclosure.Button>
+    <Disclosure.Button as="div" className="flex flex-col hover:bg-indigo-50"><small>{edit.commit_date.toLocaleString()}</small><h5 className="text-lg">Recipe created</h5></Disclosure.Button>
     <Disclosure.Panel>{edit.title}{edit.description}{edit.ingredients}{edit.instructions}</Disclosure.Panel>
   </Disclosure>
   );
@@ -346,7 +358,7 @@ const Edit = ({edit, canEdit}) => {
         absolute top-1/3 right-0 mx-5 hidden 
         group-hover:block border-2 border-red-700 text-red-700
         hover:bg-red-700 hover:text-white"><TrashIcon /></button>} */}
-      <small>{edit.commit_date}</small><h5 className="text-lg">Recipe edited</h5></Disclosure.Button>
+      <small>{edit.commit_date.toLocaleString()}</small><h5 className="text-lg">Recipe edited</h5></Disclosure.Button>
     <Disclosure.Panel className="px-4 relative">
       { canEdit && <button className="h-6 w-6 rounded-lg p-1
         absolute top-0 right-0 mx-5 block border-2 border-red-700 text-red-700

@@ -108,7 +108,7 @@ const RecipeCard = ({ recipe, is_viewer_owner, myRecipes, setMyRecipes }) => {
         className="object-none mix-blend-multiply"
       /></div>
       <div className="flex flex-col justify-center ml-4">
-        <small className="text-gray-600">{recipe.last_modified}</small>
+        <small className="text-gray-600">{recipe.last_modified.toLocaleString()}</small>
         <h3 className="font-bold text-xl">{recipe.title}</h3>
         <p>{recipe.description}</p> 
       </div>
@@ -123,8 +123,11 @@ export const userLoader = async ({ params }) => {
   const res = await apiReq('get', `/api/users/${username}`);
 
   if(res.ok || res.status == 401){
-    // console.log(res.json);
-    return res.json;
+    const data = res.json;
+    for(const recipe of data.recipes){
+      recipe.last_modified = new Date(recipe.last_modified);
+    }
+    return data;
   }
 
   throw Error('User not found');
