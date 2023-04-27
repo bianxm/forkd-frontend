@@ -47,6 +47,7 @@ export default function NewRecipe (){
             ingredients: ingredientsText,
             instructions: data.instructions,
             url: recipeUrl,
+            img_url: data.imgUrl
         });
     }    
 

@@ -13,7 +13,7 @@ import Recipe, { recipeLoader } from './components/Recipe'
 import User, { userLoader } from './components/User'
 import { LogIn } from './components/LogIn'
 import { SignUp } from './components/SignUp'
-import Home from './components/Home'
+import Home, { featuredLoader } from './components/Home'
 import NotFound from './components/NotFound'
 import AuthProvider, { useAuth } from './contexts/AuthProvider'
 import FlashProvider from './contexts/FlashProvider'
@@ -59,7 +59,7 @@ function PrivateRoute({children}){
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>
-      <Route index element={<Home />}/>
+      <Route index element={<Home />} loader={featuredLoader} />
       <Route path=":username" element={<div><Outlet /></div>} >
         <Route index 
           element={<User />} 
@@ -77,6 +77,7 @@ const router = createBrowserRouter(
 
       {/* private only routes */}
       <Route path="new" element={<PrivateRoute><NewRecipe /></PrivateRoute>}></Route>
+      <Route path="settings" element={<PrivateRoute>USER SETTINGS HERE</PrivateRoute>}/>
     </Route>
   )
 );

@@ -17,7 +17,7 @@ export default function User(){
       <div className="flex items-end w-full pl-10">
         <div className="relative group">
           { is_viewer_owner ?
-          <Link>
+          <Link to="/settings">
         <img 
           className="rounded-full block h-36 w-36"
           src="/src/assets/avatars/c7.jpg"
@@ -80,9 +80,10 @@ const OwnRecipes = ({ user_data }) => {
   );
 }
 
-const RecipeCard = ({ recipe, is_viewer_owner, myRecipes, setMyRecipes }) => {
+export const RecipeCard = ({ recipe, is_viewer_owner, myRecipes, setMyRecipes, featured }) => {
   const flash = useFlash();
   const navigate = useNavigate();
+  recipe.last_modified = new Date(recipe.last_modified);
   async function deleteRecipe(){
     if(confirm('Are you sure you want to delete this recipe? It cannot be undone.')){
       const response = await apiReq('DELETE',`/api/recipes/${recipe.id}`)
@@ -109,6 +110,7 @@ const RecipeCard = ({ recipe, is_viewer_owner, myRecipes, setMyRecipes }) => {
       /></div>
       <div className="flex flex-col justify-center ml-4">
         <small className="text-gray-600">{recipe.last_modified.toLocaleString()}</small>
+        {featured && <p className="font-bold">{recipe.owner}/</p>}
         <h3 className="font-bold text-xl">{recipe.title}</h3>
         <p>{recipe.description}</p> 
       </div>
@@ -124,9 +126,9 @@ export const userLoader = async ({ params }) => {
 
   if(res.ok || res.status == 401){
     const data = res.json;
-    for(const recipe of data.recipes){
-      recipe.last_modified = new Date(recipe.last_modified);
-    }
+    // for(const recipe of data.recipes){
+    //   recipe.last_modified = new Date(recipe.last_modified);
+    // }
     return data;
   }
 

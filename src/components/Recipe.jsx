@@ -99,6 +99,7 @@ const RecipeDetails = ({ recipe }) => {
     description: recipe_details.description,
     ingredients: recipe_details.ingredients,
     instructions: recipe_details.instructions,
+    img_url: recipe_details.img_url,
   });
   const handleEditClick = () => {
     setIsEditing(true);
@@ -143,7 +144,7 @@ const RecipeDetails = ({ recipe }) => {
     return(
   <div className="md:w-7/12 w-full px-2 bg-stone-50 pb-16">
       <div className="h-40 bg-red-300">
-        <img src="/src/assets/patterns/japanese.png" className="object-cover mix-blend-multiply h-full w-full"/>
+        <img src={recipeEditData.img_url? recipeEditData.img_url : "/src/assets/patterns/japanese.png"} className="object-cover mix-blend-multiply h-full w-full"/>
       </div>
       <form onSubmit={handleEditSubmit} id="editRecipe">
         <div>
@@ -179,7 +180,7 @@ const RecipeDetails = ({ recipe }) => {
   return (
     <div className="md:w-7/12 w-full px-2 bg-stone-50 pb-16">
       <div className="h-40 bg-red-300">
-        <img src="/src/assets/patterns/japanese.png" className="object-cover mix-blend-multiply h-full w-full"/>
+        <img src={recipeEditData.img_url? recipeEditData.img_url : "/src/assets/patterns/japanese.png"} className="object-cover mix-blend-multiply h-full w-full"/>
       </div>
       <div className="relative">
       {recipe.can_edit && <button hidden={isEditing} onClick={handleEditClick} className="absolute p-2 right-0 mx-4 rounded-full text-center outline outline-2 outline-gray-500 hover:bg-gray-500"><PencilIcon className="text-gray-500 w-6 h-6 hover:text-white"/></button>}
