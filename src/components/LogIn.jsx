@@ -24,7 +24,7 @@ export const LogIn = () => {
         e.preventDefault();
         console.log(loginData)
         const result = await login(loginData.login, loginData.password);
-        if(result !== 'error' || result !== 'fail'){
+        if(result !== 'error' && result !== 'fail'){
             console.log(result);
             navigate(`/${result.username}`);
         }

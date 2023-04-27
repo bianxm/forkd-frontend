@@ -3,8 +3,10 @@ import { useState } from 'react';
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/solid';
 import { Disclosure } from '@headlessui/react';
 import { useFlash } from '../contexts/FlashProvider';
+import { useAuth } from '../contexts/AuthProvider';
 
 export const SignUp = () => {
+    const { login } = useAuth();
     const navigate = useNavigate();
     const [signupData, setSignupData] = useState({
         username: "",
@@ -59,6 +61,31 @@ export const SignUp = () => {
         }
     }
 
+    async function createTempAccount(e){
+        let now = 0;
+        console.log(now);
+        let response = {status: 500};
+        do {
+            now = Date.now();
+            response = await fetch('/api/users', {
+                method: 'POST',
+                headers: {"Content-Type":"application/json"},
+                body: JSON.stringify({
+                    email: now.toString(),
+                    username: now.toString(),
+                    password: now.toString(),
+                    is_temp_user: true
+                })
+            });
+        }while(response.status!==201);
+
+        const result = await login(now, now);
+        if(!(result==='error' || result==='fail')){
+            console.log(result);
+            navigate(`/${now}`);
+        }
+    }
+
     return (
         <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -110,7 +137,7 @@ export const SignUp = () => {
                     <Link to="/login" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Log in here.</Link>
                 </p>
                 <div className="text-center text-sm text-gray-500">Can't commit to an account quite yet?{' '}
-                    <a className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Use a temporary test account.</a>
+                    <button onClick={createTempAccount} className="inline font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Use a temporary test account.</button>
                     <Disclosure>
                     <Disclosure.Button><QuestionMarkCircleIcon className="inline align-top w-5 h-5 text-gray-400"/></Disclosure.Button>
                     <Disclosure.Panel>
