@@ -91,7 +91,7 @@ export default function Header(){
                       <span className="sr-only">Open user menu</span>
                       <img
                         className="h-9 w-9 rounded-full"
-                        src="/src/assets/avatars/c7.jpg"
+                        src={user.img_url ? user.img_url : "/src/assets/avatars/av4.jpg"}
                         alt=""
                       /> </>:
                       <><span className="sr-only">Open login menu</span>

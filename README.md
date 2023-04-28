@@ -12,14 +12,19 @@ This is the frontend repo corresponding to the backend [here](https://github.com
 
 ## Roadmap
 ### MVP
-- [ ] Public User
+- [x] Public User
   - [x] View user profiles
-  - [ ] View public recipes
+  - [x] View public recipes
   - [x] Sign up, log in
-- [ ] Authenticated User
-  - [ ] Create, edit, delete
+- [x] Authenticated User
+  - [x] Add and delete recipes, edits, and experiments
+  - [x] Set global permissions for a recipe
+  - [x] Grant, edit, revoke permissions to specific users
+  - [x] Update user details -- avatar, username, password, email
   - [x] Log out
 ### 2.0
+- Upload images (Cloudinary)
 - Experiment-only collaborators can submit edits for owner approval
 - Saving experiment drafts
+- Email support (confirm email, password reset)
 - Real-time diff highlighting with [Mergely](https://www.mergely.com/)

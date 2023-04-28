@@ -20,7 +20,7 @@ export default function User(){
           <Link to="/settings">
         <img 
           className="rounded-full block h-36 w-36"
-          src="/src/assets/avatars/c7.jpg"
+          src={user.img_url? user.img_url : "/src/assets/avatars/av4.jpg"}
         />
         <div className="absolute hidden group-hover:block bg-gray-300 bottom-0 right-0 rounded-full w-10 h-10 mr-2 mb-2 p-2.5"><Cog8ToothIcon className="text-gray-700"/></div>
         </Link>:

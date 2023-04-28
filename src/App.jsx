@@ -7,6 +7,10 @@ import {
   useLocation,
   Navigate,
 } from 'react-router-dom'
+
+import AuthProvider, { useAuth } from './contexts/AuthProvider'
+import FlashProvider from './contexts/FlashProvider'
+
 import Header from './components/Header'
 import Footer from './components/Footer'
 import Recipe, { recipeLoader } from './components/Recipe' 
@@ -15,10 +19,9 @@ import { LogIn } from './components/LogIn'
 import { SignUp } from './components/SignUp'
 import Home, { featuredLoader } from './components/Home'
 import NotFound from './components/NotFound'
-import AuthProvider, { useAuth } from './contexts/AuthProvider'
-import FlashProvider from './contexts/FlashProvider'
 import FlashMessage from './components/FlashMessage'
 import NewRecipe from './components/NewRecipe'
+import Settings, {ChangeAvatar, ChangeEmail, ChangePassword, ChangeUsername} from './components/Settings'
 
 function RootLayout(){
   let location = useLocation();
@@ -76,8 +79,13 @@ const router = createBrowserRouter(
       <Route path="signup" element={<PublicRoute><SignUp /></PublicRoute>} />
 
       {/* private only routes */}
-      <Route path="new" element={<PrivateRoute><NewRecipe /></PrivateRoute>}></Route>
-      <Route path="settings" element={<PrivateRoute>USER SETTINGS HERE</PrivateRoute>}/>
+      <Route path="new" element={<PrivateRoute><NewRecipe /></PrivateRoute>} />
+      <Route path="settings" element={<PrivateRoute><Settings /></PrivateRoute>}>
+        <Route path="password" element={<ChangePassword />} />
+        <Route path="username" element={<ChangeUsername />} />
+        <Route path="email" element={<ChangeEmail />} />
+        <Route path="avatar" element={<ChangeAvatar />} />
+      </Route>
     </Route>
   )
 );
@@ -92,4 +100,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

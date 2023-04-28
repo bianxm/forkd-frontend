@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-const plugin = require('tailwindcss/plugin')
+const plugin = require('tailwindcss/plugin');
 export default {
   content: [
     "./index.html",
@@ -10,7 +10,6 @@ export default {
   },
   plugins: [
     require('@headlessui/tailwindcss'),
-    // require('@tailwindcss/forms'),
     plugin(function({ addVariant }){
       addVariant('contentEditable','&[contentEditable="true"]')
     })
