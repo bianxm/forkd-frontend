@@ -33,17 +33,37 @@ export function ChangeAvatar(){
     }
     const avatars = ['av1', 'av2', 'av3', 'av4', 'av5'];
     const [chosenAv, setChosenAv] = useState(currentAv);
+    const [selectedFile, setSelectedFile] = useState(null);
     
     const submitChosenAv = async () => {
+        let response = null;
         if(chosenAv!=='upload'){
-            const response = await apiReq('PATCH',`/api/users/${user.id}`,'',{
+            response = await apiReq('PATCH',`/api/users/${user.id}`,'',{
                 img_url: `/src/assets/avatars/${chosenAv}.jpg`
             });
             if(response.status===200){
                 setUser(oldData => ({...oldData, img_url: `/src/assets/avatars/${chosenAv}.jpg`,}));
                 flash('Avatar changed!','bg-green-100 border border-green-400 text-green-700');
             }
+        }else if(chosenAv==='upload') {
+            console.log('im here!')
+            const formData = new FormData();
+            formData.append('img_file', selectedFile);
+            formData.append('hi','there');
+            for(const key of formData.entries()){
+                console.log(key)
+            }
+            response = await apiReq('PATCH',`/api/users/${user.id}`,'', formData, {'Content-Type':'multipart/form-data'});
+            if(response.status===200){
+                setUser(oldData => ({...oldData, img_url: response.json.new_avatar}));
+                flash('Avatar changed!','bg-green-100 border border-green-400 text-green-700');
+            }else{
+                flash('Something went wrong...','bg-red-100 border border-red-400 text-red-700');
+            }
         }
+    };
+    
+    const submitFile = async () => {
     };
 
     return(
@@ -57,9 +77,10 @@ export function ChangeAvatar(){
                         </div>
                     </RadioGroup.Option>
                 ))}
-                {/* <RadioGroup.Option value='upload' className="w-24 h-24 md:w-40 md:h-40 ui-checked:bg-green-200">Upload your own
-                <form><input type="file" /><button>Hi</button></form>
-                </RadioGroup.Option> */}
+                <RadioGroup.Option value='upload' className="w-24 h-24 md:w-40 md:h-40 ui-checked:bg-green-200">Upload your own
+                <input type="file" accept="image/*" onChange={(e)=>setSelectedFile(e.target.files[0])} />
+                {/* <button type="submit">Hi</button> */}
+                </RadioGroup.Option>
             </RadioGroup>
             <button onClick={()=>{console.log(chosenAv);submitChosenAv();}}>Chosen</button>
         </div>

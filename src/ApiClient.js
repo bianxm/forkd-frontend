@@ -1,6 +1,6 @@
-export default async function(method, url, query, body){
+export default async function(method, url, query, body, customHeaders){
     let response;
-    let headers = {'Content-Type':'application/json'};
+    let headers = customHeaders ? {} : {'Content-Type':'application/json'};
     if(localStorage.getItem('accessToken')){
         headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`
     }
@@ -9,7 +9,7 @@ export default async function(method, url, query, body){
         response = await fetch(url, {
             method: method,
             headers: headers,
-            body: body ? JSON.stringify(body) : null,
+            body: (body && !customHeaders ) ? JSON.stringify(body) : body,
         })
     } catch(error){
         response = {
