@@ -9,7 +9,7 @@ export default function FlashMessage(){
     return(
         // <div className="bg-red-400">{flashMessage}</div>
         <Transition
-            className={`fixed right-0 top-0 w-60 text-center rounded-md my-4 mx-8 pt-3 p-3 ${flashMessage.color}`}
+            className={`fixed z-50 right-0 top-0 w-60 text-center rounded-md my-4 mx-8 pt-3 p-3 ${flashMessage.color}`}
             // show={true}
             show={isVisible}
             >

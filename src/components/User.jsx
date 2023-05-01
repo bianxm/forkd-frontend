@@ -26,7 +26,7 @@ export default function User(){
         </Link>:
         <img 
           className="rounded-full block h-36 w-36"
-          src="/src/assets/avatars/c7.jpg"
+          src="/src/assets/avatars/av4.jpg"
         />
         }
         </div>
