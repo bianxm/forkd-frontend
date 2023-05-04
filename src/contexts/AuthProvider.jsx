@@ -46,12 +46,9 @@ import { useFlash } from '../contexts/FlashProvider';
     }
 
     const logout = async () => {
-        // console.log('logout');
         response = await apiReq('DELETE', '/api/tokens');
-        // console.log(response);
         setUser(null);
         localStorage.removeItem('accessToken');
-        // flash("Logged out",'bg-blue-100 border border-blue-400 text-blue-700');
     };
 
     return(
