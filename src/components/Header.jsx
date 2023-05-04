@@ -5,13 +5,6 @@ import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Bars3Icon } from '@heroicons/react/24/outline'
 import { useAuth } from '../contexts/AuthProvider';
 
-// const navigation = [
-//   { name: 'Dashboard', href: '#', current: true },
-//   { name: 'Team', href: '#', current: false },
-//   { name: 'Projects', href: '#', current: false },
-//   { name: 'Calendar', href: '#', current: false },
-// ]
-
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
@@ -22,7 +15,7 @@ export default function Header(){
     return(
         // <Disclosure as="nav" className="bg-gray-800">
       // {({ open }) => (
-        <div className="bg-gray-700">
+        <nav className="bg-gray-700">
           {/* <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8"> */}
           <div className="mx-auto px-2 sm:px-6 lg:px-8">
             <div className="relative flex h-16 items-center justify-between">
@@ -197,7 +190,7 @@ export default function Header(){
               ))}
             </div>
           </Disclosure.Panel> */}
-        </div>
+        </nav>
       // )}
     // </Disclosure>
           );

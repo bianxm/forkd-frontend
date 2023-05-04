@@ -104,13 +104,13 @@ export default function NewRecipe (){
             </div>
         </form>
         <div className="text-center">
-        <button className="outline outline-2 outline-gray-400 hover:bg-gray-400 hover:text-white font-bold rounded-lg my-5 mx-2 py-2 px-16"
+        <button className="outline outline-2 outline-gray-400 hover:bg-gray-400 hover:text-white font-bold rounded-lg mt-5 mx-2 py-2 px-16"
         onClick={()=>{
             if(hasPreviousState) navigate(-1);
             else navigate(`/${user.username}`);
         }}
         >Cancel</button>
-        <button type="submit" form="newRecipe" className="bg-lime-500 hover:bg-lime-400 font-bold rounded-lg my-5 mx-2 py-2 px-16">Save</button>
+        <button type="submit" form="newRecipe" className="bg-lime-500 hover:bg-lime-400 font-bold rounded-lg my-1 md:my-5 mx-2 py-2 px-16">Save</button>
         </div>
     </div>);
 }

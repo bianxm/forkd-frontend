@@ -38,7 +38,6 @@ export default function Recipe(){
   const recipe_data = useLoaderData();
   const { user } = useAuth();
   const is_viewer_owner = user && user.username === recipe_data.owner
-  console.log(recipe_data);
   const [isPermissionsOpen, setIsPermissionsOpen] = useState(false);
   
   const [edits, setEdits] = useState(recipe_data.timeline_items.edits);
@@ -107,7 +106,6 @@ export default function Recipe(){
 
 const RecipeDetails = ({ recipe, edits, setEdits }) => {
   const flash = useFlash();
-  const navigate = useNavigate();
   const recipe_details = recipe.timeline_items.edits[0]
   const [isEditing, setIsEditing] = useState(false);
   const [recipeEditData, setRecipeEditData] = useState({
@@ -134,7 +132,6 @@ const RecipeDetails = ({ recipe, edits, setEdits }) => {
     const response = await apiReq('PUT',`/api/recipes/${recipe.id}`,'', recipeEditData);
     if(response.status===200){
       const json = await response.json;
-      console.log("json", json);
       const prev = edits[0];
       const curr = recipeEditData;
       let curr_diffHtml = "";
@@ -231,10 +228,10 @@ const RecipeDetails = ({ recipe, edits, setEdits }) => {
 
 const RecipeTimeline = ({recipe, edits, setEdits, experiments, setExperiments}) => {
   const flash = useFlash();
+  const [recalcDiff, setRecalcDiff] = useState(true);
   useEffect(()=>{
     let newEdits = [];
     for(let i=0; i<edits.length-1; i++){
-      console.log('effect running')
       const prev = edits[i+1];
       const curr = edits[i];
       let curr_diffHtml = "";
@@ -254,7 +251,7 @@ const RecipeTimeline = ({recipe, edits, setEdits, experiments, setExperiments}) 
       newEdits.push({...curr, diffHtml: curr_diffHtml});
     }
     setEdits([...newEdits, edits[edits.length-1]]);
-  },[]);
+  },[recalcDiff]);
   
   // mix together experiment and edits, sort by commit_date
   let items= experiments? experiments.concat(edits.slice(0,-1)).sort((a, b)=>(a.commit_date < b.commit_date)?1:-1) : edits.slice(0,-1);
@@ -263,6 +260,10 @@ const RecipeTimeline = ({recipe, edits, setEdits, experiments, setExperiments}) 
     notes: "",
   });
   const handleExpChange = (e) => {
+    if(e.target.name==='notes'){
+      e.target.style.height = 'inherit';
+      e.target.style.height = `${e.target.scrollHeight}px`;
+    }
     setNewExperimentForm(oldData => {return({...oldData, [e.target.name]: e.target.value});});
   };
 
@@ -293,19 +294,20 @@ const RecipeTimeline = ({recipe, edits, setEdits, experiments, setExperiments}) 
           </form>
         </Disclosure.Panel>
       </Disclosure>}
-      {/* {recipe.timeline_items.experiments.map(experiment => (<Experiment experiment={experiment} key={experiment.id}/>))}
-      {recipe.timeline_items.edits.slice(0,-1).map(edit => (<Edit edit={edit} key={edit.id}/>))} */}
+      <ul>
       {items.map(item => {
-        if(item.item_type==='edit'){return <Edit edit={item} key={`ed${item.id}`} canEdit={recipe.can_edit} eds={edits} setEds={setEdits} />}
-        else if(item.item_type==='experiment'){return <Experiment experiment={item} key={`exp${item.id}`} canExperiment={recipe.can_experiment} exps={experiments} setExps={setExperiments}/>}
+        if(item.item_type==='edit'){return <Edit edit={item} key={`ed${item.id}`} canEdit={recipe.can_edit} eds={edits} setEds={setEdits} setRecalcDiff={setRecalcDiff} />}
+        else if(item.item_type==='experiment'){return <Experiment experiment={item} key={`exp${item.id}`} canExperiment={recipe.can_experiment} canEdit={recipe.can_edit} exps={experiments} setExps={setExperiments}/>}
       })}
       <Created edit={edits[edits.length-1]}/>
+      </ul>
     </div>
   );
 }
 
-const Experiment = ({experiment, canExperiment, exps, setExps }) => {
+const Experiment = ({experiment, canExperiment, canEdit, exps, setExps }) => {
   const flash = useFlash();
+  const { user } = useAuth();
 
   async function deleteExperiment(e){
     if(confirm("Are you sure you want to delete this experiment? This can't be undone")){
@@ -320,20 +322,19 @@ const Experiment = ({experiment, canExperiment, exps, setExps }) => {
   }
 
   return (
-  <Disclosure>
+  <Disclosure as="li" className="relative border-l border-gray-200 pb-10 pl-6">
+    <div className="absolute -left-2 top-2 rounded-full w-4 h-4 bg-gray-300"/>
     <Disclosure.Button as="div" className="flex flex-col hover:bg-indigo-50">
-      {/* { canExperiment && <button className="h-6 w-6 rounded-lg p-1
-        absolute top-1/3 right-0 mx-5 hidden 
-        group-hover:block border-2 border-red-700 text-red-700
-        hover:bg-red-700 hover:text-white" onClick={()=>console.log('delete clicked')}><TrashIcon /></button>} */}
-      <small>{experiment.commit_date.toLocaleString()}</small>
       <p><Link className="text-md text-gray-500 hover:text-indigo-600" to={`/${experiment.commit_by}`}><img className="inline w-4 h-4 rounded-full" src={experiment.commit_by_avatar ? experiment.commit_by_avatar : '/src/assets/avatars/av4.jpg'}/> {experiment.commit_by}/</Link></p>
-      <h5 className="text-lg">{experiment.commit_msg}</h5></Disclosure.Button>
-    <Disclosure.Panel className="relative">
-      { canExperiment && <button className="h-6 w-6 rounded-lg p-1
-        absolute top-0 right-0 mx-5 block border-2 border-red-700 text-red-700
+      <h5 className="text-lg font-bold">{experiment.commit_msg}</h5>
+      <small>{experiment.commit_date.toLocaleString()}</small>
+      </Disclosure.Button>
+    <Disclosure.Panel className="p-4 relative rounded-lg bg-slate-50">
+      { (canEdit || (canExperiment && (experiment.commit_by===user.username))) && 
+      <button className="h-7 w-7 rounded-lg p-1
+        absolute top-2 right-0 mx-5 block border-2 border-red-700 text-red-700
         hover:bg-red-700 hover:text-white" onClick={deleteExperiment}><TrashIcon /></button>}
-      {experiment.notes}
+      {experiment.notes ? <p className="text-gray-900">{experiment.notes}</p> : <em className="text-gray-300">no notes</em>}
     </Disclosure.Panel>
   </Disclosure>
   );
@@ -341,40 +342,53 @@ const Experiment = ({experiment, canExperiment, exps, setExps }) => {
 
 const Created = ({edit}) => {
   return (
-  <Disclosure>
-    <Disclosure.Button as="div" className="flex flex-col hover:bg-indigo-50"><small>{edit.commit_date.toLocaleString()}</small><h5 className="text-lg">Recipe created</h5></Disclosure.Button>
-    <Disclosure.Panel>{edit.title}{edit.description}{edit.ingredients}{edit.instructions}</Disclosure.Panel>
+  <Disclosure as="li" className="pl-6 relative">
+    <div className="absolute -left-2 top-2 rounded-full w-4 h-4 bg-indigo-400"/>
+    <Disclosure.Button as="div" className="flex flex-col hover:bg-indigo-50">
+      <p><Link className="text-md text-gray-500 hover:text-indigo-600" to={`/${edit.commit_by}`}><img className="inline w-4 h-4 rounded-full" src={edit.commit_by_avatar ? edit.commit_by_avatar : '/src/assets/avatars/av4.jpg'}/> {edit.commit_by}/</Link></p>
+      <h5 className="text-lg font-bold">Recipe created</h5>
+      <small>{edit.commit_date.toLocaleString()}</small>
+    </Disclosure.Button>
+    <Disclosure.Panel className="p-4 relative rounded-lg bg-slate-50">
+      <Disclosure>
+      <Disclosure.Button as="button" className="mb-2 rounded-lg bg-gray-500 text-white p-2">Show Original Recipe</Disclosure.Button>
+      <Disclosure.Panel>
+        <h6 className="font-serif font-bold">Title</h6> <p className="mb-2 whitespace-break-spaces">{edit.title}</p>
+        <h6 className="font-serif font-bold">Description</h6> <p className="mb-2 whitespace-break-spaces">{edit.description}</p>
+        <h6 className="font-serif font-bold">Ingredients</h6><p className="mb-2 whitespace-break-spaces">{edit.ingredients}</p>
+        <h6 className="font-serif font-bold">Instructions</h6><p className="whitespace-break-spaces">{edit.instructions}</p>
+      </Disclosure.Panel>
+      </Disclosure>
+      </Disclosure.Panel>
   </Disclosure>
   );
 };
 
-const Edit = ({edit, canEdit, eds, setEds}) => {
+const Edit = ({edit, canEdit, eds, setEds, setRecalcDiff}) => {
   const flash = useFlash();
   async function deleteEdit(e){
     if(confirm("Are you sure you want to delete this edit? This can't be undone")){
       const response = await apiReq('DELETE', `/api/edits/${edit.id}`);
       if(response.status==200){
         setEds(eds.filter(ed => ed.id!==edit.id));
+        setRecalcDiff(oldData => !oldData);
         flash('Edit deleted','bg-green-100 border border-green-400 text-green-700');
-        // navigate(0);
       }else{
         flash('Something went wrong, sorry','bg-red-100 border border-red-400 text-red-700');
       }
     }
   }
   return (
-  <Disclosure>
+  <Disclosure as="li" className="relative pb-10 pl-6 border-l border-gray-200">
+    <div className="absolute -left-2 top-2 rounded-full w-4 h-4 bg-rose-200"/>
     <Disclosure.Button as="div" className="group relative flex flex-col hover:bg-indigo-50">
-      {/* {canEdit && <button className="h-6 w-6 rounded-lg p-1
-        absolute top-1/3 right-0 mx-5 hidden 
-        group-hover:block border-2 border-red-700 text-red-700
-        hover:bg-red-700 hover:text-white"><TrashIcon /></button>} */}
-      <small>{edit.commit_date.toLocaleString()}</small>
       <p><Link className="text-md text-gray-500 hover:text-indigo-600" to={`/${edit.commit_by}`}><img className="inline w-4 h-4 rounded-full" src={edit.commit_by_avatar ? edit.commit_by_avatar : '/src/assets/avatars/av4.jpg'}/> {edit.commit_by}/</Link></p>
-      <h5 className="text-lg">Recipe edited</h5></Disclosure.Button>
-    <Disclosure.Panel className="px-4 relative">
-      { canEdit && <button className="h-6 w-6 rounded-lg p-1
-        absolute top-0 right-0 mx-5 block border-2 border-red-700 text-red-700
+      <h5 className="text-lg font-bold">Recipe edited</h5>
+      <small>{edit.commit_date.toLocaleString()}</small>
+      </Disclosure.Button>
+    <Disclosure.Panel className="p-4 relative rounded-lg bg-slate-50">
+      { canEdit && <button className="h-7 w-7 rounded-lg p-1
+        absolute top-2 right-0 mx-5 block border-2 border-red-700 text-red-700
         hover:bg-red-700 hover:text-white" onClick={deleteEdit}><TrashIcon /></button>}
       <div dangerouslySetInnerHTML={{__html: edit.diffHtml}} />
     </Disclosure.Panel>

@@ -8,7 +8,7 @@ This is the frontend repo corresponding to the backend [here](https://github.com
 - Vite
 - React, React Router
 - Tailwind, Headless UI for styling
-- (stretch goal) [Mergely](https://www.mergely.com/) for real-time diff highlighting
+- JSDiff, Diff2html for edit diff-ing
 
 ## Roadmap
 ### MVP
@@ -21,9 +21,10 @@ This is the frontend repo corresponding to the backend [here](https://github.com
   - [x] Set global permissions for a recipe
   - [x] Grant, edit, revoke permissions to specific users
   - [x] Update user details -- avatar, username, password, email
+    - [x] Upload user avatar via Cloudinary 
   - [x] Log out
 ### 2.0
-- Upload images (Cloudinary)
+- Upload images for recipes via Cloudinary
 - Experiment-only collaborators can submit edits for owner approval
 - Saving experiment drafts
 - Email support (confirm email, password reset)
