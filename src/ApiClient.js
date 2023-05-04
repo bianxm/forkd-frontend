@@ -4,7 +4,6 @@ export default async function(method, url, query, body, customHeaders){
     if(localStorage.getItem('accessToken')){
         headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`
     }
-    // console.log(JSON.stringify(headers));
     try{
         response = await fetch(url, {
             method: method,

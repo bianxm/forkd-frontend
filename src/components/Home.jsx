@@ -13,9 +13,7 @@ export const featuredLoader = async () => {
 export default function Home(){
     const { user } = useAuth();
     const featured = useLoaderData();
-    console.log(featured);
     return(
-        // <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
         <div className="flex flex-col pb-24 bg-stone-50">
         {!user &&    <div className="h-screen flex flex-col justify-center px-6 lg:px-8">
             <h2 className="mt-4 text-center text-5xl font-bold font-serif text-gray-900">
@@ -27,11 +25,8 @@ export default function Home(){
                 <button className="rounded-md mx-2 my-2 bg-rose-300 px-3 py-2 hover:bg-rose-200"><Link to="/login">Log in</Link></button>
             </div>}
             </div>}
-            <div className={user? "px-36 py-24" :"px-36 w-screen"}>
+            <div className={user? "px-12 md:px-36 py-24" :"px-12 md:px-36 w-screen"}>
             <h3 className="text-3xl font-bold font-serif text-gray-900">Featured Recipes</h3><ul>
-          {/* {user_data.recipes.map(recipe => (
-            <RecipeCard recipe={recipe} key={recipe.id} is_viewer_owner={false}/>
-          ))} */}
                 {featured.map(recipe => <RecipeCard recipe={recipe} key={recipe.id} is_viewer_owner={false} featured={true} />)}
             </ul></div>
         </div>

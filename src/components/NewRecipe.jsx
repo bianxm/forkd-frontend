@@ -12,6 +12,7 @@ export default function NewRecipe (){
     const hasPreviousState = location.key!=="default";
     const [isDisabled, setIsDisabled] = useState(false);
     const [recipeUrl, setRecipeUrl] = useState("");
+    const [isExtracting, setIsExtracting] = useState(false);
     const [newRecipeData, setNewRecipeData] = useState({
         title: "",
         description: "",
@@ -33,14 +34,16 @@ export default function NewRecipe (){
     async function handleExtractSubmit(e) {
         e.preventDefault();
         setIsDisabled(true);
+        // setIsExtracting(oldData => !oldData)
+        setIsExtracting(true);
+        // disable extract button
         const response = await apiReq('GET',`/api/extract-recipe?url=${recipeUrl}`);
         const data = await response.json;
-        console.log(response);
-        console.log(data);
         let ingredientsText = '';
         for (const step of data.ingredients){
            ingredientsText += `${step.original}\n`; 
         }
+        setIsExtracting(false);
         setNewRecipeData({
             title: data.title,
             description: data.desc,
@@ -53,9 +56,7 @@ export default function NewRecipe (){
 
     async function submitNewRecipe(e){
         e.preventDefault();
-        console.log(newRecipeData);
         const response = await apiReq('POST','/api/recipes','',newRecipeData);
-        console.log(response);
         if(response.status===201){
             navigate(`/${user.username}`);
         }else{
@@ -64,10 +65,16 @@ export default function NewRecipe (){
     }
 
     return (<div className="flex flex-col m-8">
-        <form className="flex flex-row m-8 mr-24 items-center" onSubmit={handleExtractSubmit}>
-           <label htmlFor="extract-url" className="text-sm font-medium">URL</label> 
-           <input required value={recipeUrl} onChange={(e)=>setRecipeUrl((oldData)=>e.target.value)} type="url" id="extract-url" className="mx-4 flex-auto p-2 block rounded-md border-0 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300"/>
-           <button type="submit">Extract</button>
+        <form className="flex flex-wrap m-8 mr-24 items-center justify-between" onSubmit={handleExtractSubmit}>
+            <div className="flex flex-row flex-auto items-center ">
+            <label htmlFor="extract-url" className="text-sm font-medium">URL</label> 
+            <input required value={recipeUrl} onChange={(e)=>setRecipeUrl((oldData)=>e.target.value)} type="url" id="extract-url" className="w-full mx-4 flex-auto p-2 block rounded-md border-0 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300"/>
+            </div>
+            <button type="submit" disabled={isDisabled} className="my-2 bg-indigo-500 font-bold rounded-lg py-2 px-4 text-white enabled:hover:bg-indigo-400 disabled:bg-gray-400">
+                {isExtracting && <><div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent" />
+                {' '}Extracting </>}
+                {!isExtracting && 'Extract'}
+            </button>
         </form>
         <form id="newRecipe" className="space-y-3 mx-8 mt-12" onSubmit={submitNewRecipe}>
             <div>
@@ -97,13 +104,13 @@ export default function NewRecipe (){
             </div>
         </form>
         <div className="text-center">
-        <button className="outline outline-2 outline-gray-400 hover:bg-gray-400 text-bold rounded-lg my-5 mx-2 py-2 px-16"
+        <button className="outline outline-2 outline-gray-400 hover:bg-gray-400 hover:text-white font-bold rounded-lg my-5 mx-2 py-2 px-16"
         onClick={()=>{
             if(hasPreviousState) navigate(-1);
             else navigate(`/${user.username}`);
         }}
         >Cancel</button>
-        <button type="submit" form="newRecipe" className="bg-lime-500 hover:bg-lime-400 text-bold rounded-lg my-5 mx-2 py-2 px-16">Save</button>
+        <button type="submit" form="newRecipe" className="bg-lime-500 hover:bg-lime-400 font-bold rounded-lg my-5 mx-2 py-2 px-16">Save</button>
         </div>
     </div>);
 }

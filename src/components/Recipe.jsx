@@ -60,6 +60,18 @@ export default function Recipe(){
         flash('Cannot extract recipe','bg-red-100 border border-red-400 text-red-700');
     }
   }
+  
+  async function deleteRecipe(){
+    if(confirm('Are you sure you want to delete this recipe? It cannot be undone.')){
+      const response = await apiReq('DELETE',`/api/recipes/${recipe_data.id}`)
+      if(response.status===200){
+        navigate(`/${user.username}`);
+      }else {
+        flash('Sorry, something went wrong','bg-red-100 border border-red-400 text-red-700');
+      }
+    }
+  }
+
   return(
     <div className="relative w-screen bg-stone-50 p-8">
       <div className="lg:flex lg:items-center lg:justify-between pb-5">
@@ -72,7 +84,7 @@ export default function Recipe(){
             {recipe_data.source_url && <div className="mt-0 text-sm text-gray-500">Adapted from <a href={recipe_data.source_url} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-700">{recipe_data.source_url}</a></div>}
           </div>
           {user && <button onClick={handleFork} className="px-3 py-1 border-2 border-gray-600 text-gray-600 hover:text-white hover:bg-gray-600 m-1 rounded-lg">Fork</button>}
-          {is_viewer_owner && <button className="text-red-700 border-2 border-red-700 hover:bg-red-700 hover:text-white px-3 py-1 m-1 rounded-lg">Delete</button>}
+          {is_viewer_owner && <button onClick={deleteRecipe} className="text-red-700 border-2 border-red-700 hover:bg-red-700 hover:text-white px-3 py-1 m-1 rounded-lg">Delete</button>}
           {recipe_data.can_edit && <button className="text-indigo-700 border-2 border-indigo-700 hover:bg-indigo-600 hover:text-white px-3 py-1 m-1 rounded-lg" onClick={()=>setIsPermissionsOpen(true)}>Share</button>}
           <Dialog open={isPermissionsOpen} onClose={()=>setIsPermissionsOpen(false)} >
             <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
@@ -116,13 +128,31 @@ const RecipeDetails = ({ recipe, edits, setEdits }) => {
     ((recipe_details.description === recipeEditData.description) &&
     (recipe_details.ingredients === recipeEditData.ingredients)) &&
     (recipe_details.instructions === recipeEditData.instructions)){
-      console.log('Do nothing!');
       return;
     }
     // send API call
     const response = await apiReq('PUT',`/api/recipes/${recipe.id}`,'', recipeEditData);
     if(response.status===200){
-      setEdits(oldData => [{...response.json, commit_date: new Date(response.json.commit_date)}, ...oldData]);
+      const json = await response.json;
+      console.log("json", json);
+      const prev = edits[0];
+      const curr = recipeEditData;
+      let curr_diffHtml = "";
+      for(const attr of ['title', 'description', 'ingredients', 'instructions']){
+        if(prev[attr]!==curr[attr]){
+          const this_diff= Diff.createPatch(attr, prev[attr], curr[attr])
+          const this_diff2Html = Diff2Html.html(this_diff, {
+            matching: 'lines',
+            drawFileList: false,
+            srcPrefix: false,
+            dstPrefix: false,
+            outputFormal: 'line-by-line'
+          })
+          curr_diffHtml = curr_diffHtml.concat(this_diff2Html);
+        }
+      }
+      setEdits(oldData => [{...json, commit_date: new Date(response.json.commit_date),
+      diffHtml: curr_diffHtml}, ...oldData]);
       flash('Edit added!','bg-green-100 border border-green-400 text-green-700');
     } else{
       flash('Error adding edit.','bg-red-100 border border-red-400 text-red-700');
@@ -172,9 +202,9 @@ const RecipeDetails = ({ recipe, edits, setEdits }) => {
         value={recipeEditData.instructions} onChange={handleEditChange} />
       </div>
       </form>
-        <button className="outline outline-2 outline-gray-400 hover:bg-gray-400 text-bold rounded-lg my-5 mx-2 py-2 px-16"
+        <button className="outline outline-2 outline-gray-400 hover:bg-gray-400 text-bold rounded-lg my-1 sm:my-5 mx-2 py-2 px-14"
           onClick={(e)=>{e.preventDefault(); setIsEditing(false);}}>Cancel</button>
-        <button type="submit" form="editRecipe" className="bg-lime-500 hover:bg-lime-400 text-bold rounded-lg my-5 mx-2 py-2 px-16">Save</button>
+        <button type="submit" form="editRecipe" className="bg-lime-500 hover:bg-lime-400 text-bold rounded-lg my-1 sm:my-5 mx-2 py-2 px-16">Save</button>
   </div>);
   }else{
   return (
@@ -197,36 +227,17 @@ const RecipeDetails = ({ recipe, edits, setEdits }) => {
     </div>
   );
   }
-  // return (
-  //   <div className="md:w-7/12 w-full px-2 bg-stone-50 pb-16">
-  //     <div className="h-40 bg-red-300">
-  //       <img src="/src/assets/patterns/japanese.png" className="object-cover mix-blend-multiply h-full w-full"/>
-  //     </div>
-  //     <div className="relative">
-  //     {is_viewer_owner && <button hidden={isEditing} onClick={handleEditClick} className="absolute p-2 right-0 mx-4 rounded-full text-center outline outline-2 outline-gray-500 hover:bg-gray-500"><PencilIcon className="text-gray-500 w-6 h-6 hover:text-white"/></button>}
-  //     <div contentEditable={isEditing} onBlur={handleChange} suppressContentEditableWarning={true} id="description" className="m-4 contentEditable:p-2 whitespace-break-spaces contentEditable:rounded-xl contentEditable:outline contentEditable:outline-2 contentEditable:outline-gray-400">{recipeEditData.description}</div>
-  //     <div className="w-full p-2">
-  //       <h4 className="font-serif text-bold text-xl"> Ingredients</h4>
-  //       <div contentEditable={isEditing} onBlur={handleChange} suppressContentEditableWarning={true} id="ingredients" className="px-4 contentEditable:py-4 mx-4 whitespace-break-spaces contentEditable:rounded-xl contentEditable:outline contentEditable:outline-2 contentEditable:outline-gray-400">{recipeEditData.ingredients}</div>
-  //     </div>
-  //     <div className="w-full p-2">
-  //       <h4 className="font-serif text-bold text-xl">Instructions</h4>
-  //       <div contentEditable={isEditing} onBlur={handleChange} suppressContentEditableWarning={true} id="instructions" className="px-4 contentEditable:py-4 mx-4 whitespace-pre-wrap contentEditable:rounded-xl contentEditable:outline contentEditable:outline-2 contentEditable:outline-gray-400">{recipeEditData.instructions}</div>
-  //     </div>
-  //     {is_viewer_owner && <button hidden={!isEditing} onClick={handleSaveClick} className="bg-lime-500 hover:bg-lime-400 text-bold rounded-lg m-5 py-2 px-16">Save</button>}
-  //     </div>
-  //   </div>
 };
 
 const RecipeTimeline = ({recipe, edits, setEdits, experiments, setExperiments}) => {
   const flash = useFlash();
   useEffect(()=>{
-    console.log('effect running');
-    // TODO perhaps transform edits to spinners while this effect is running
+    let newEdits = [];
     for(let i=0; i<edits.length-1; i++){
+      console.log('effect running')
       const prev = edits[i+1];
       const curr = edits[i];
-      curr.diffHtml = "";
+      let curr_diffHtml = "";
       for(const attr of ['title', 'description', 'ingredients', 'instructions']){
         if(prev[attr]!==curr[attr]){
           const this_diff= Diff.createPatch(attr, prev[attr], curr[attr])
@@ -237,15 +248,16 @@ const RecipeTimeline = ({recipe, edits, setEdits, experiments, setExperiments}) 
             dstPrefix: false,
             outputFormal: 'line-by-line'
           })
-          curr.diffHtml = curr.diffHtml.concat(this_diff2Html);
+          curr_diffHtml = curr_diffHtml.concat(this_diff2Html);
         }
       }
+      newEdits.push({...curr, diffHtml: curr_diffHtml});
     }
-  },[edits]);
+    setEdits([...newEdits, edits[edits.length-1]]);
+  },[]);
   
   // mix together experiment and edits, sort by commit_date
   let items= experiments? experiments.concat(edits.slice(0,-1)).sort((a, b)=>(a.commit_date < b.commit_date)?1:-1) : edits.slice(0,-1);
-  console.log(items);
   const [newExperimentForm, setNewExperimentForm] = useState({
     commit_msg : "",
     notes: "",
@@ -256,14 +268,11 @@ const RecipeTimeline = ({recipe, edits, setEdits, experiments, setExperiments}) 
 
   async function submitNewExperiment(e) {
     e.preventDefault();
-    console.log(newExperimentForm);
     const response = await apiReq('POST',`/api/recipes/${recipe.id}`,'', newExperimentForm);
     const json = response.json;
-    console.log(json);
     if(response.status===200){
       setNewExperimentForm({commit_msg:"", notes:""})
       setExperiments(oldData => [{...json, commit_date: new Date(json.commit_date)}, ...oldData]);
-      console.log(items);
       flash('Experiment added!','bg-green-100 border border-green-400 text-green-700');
     } else{
       flash('Error adding experiment.','bg-red-100 border border-red-400 text-red-700')
@@ -296,8 +305,6 @@ const RecipeTimeline = ({recipe, edits, setEdits, experiments, setExperiments}) 
 }
 
 const Experiment = ({experiment, canExperiment, exps, setExps }) => {
-  // const { user } = useAuth();
-  // console.log('user',user);
   const flash = useFlash();
 
   async function deleteExperiment(e){
@@ -334,7 +341,6 @@ const Experiment = ({experiment, canExperiment, exps, setExps }) => {
 
 const Created = ({edit}) => {
   return (
-    // <div>{experiment.commit_date}</div>
   <Disclosure>
     <Disclosure.Button as="div" className="flex flex-col hover:bg-indigo-50"><small>{edit.commit_date.toLocaleString()}</small><h5 className="text-lg">Recipe created</h5></Disclosure.Button>
     <Disclosure.Panel>{edit.title}{edit.description}{edit.ingredients}{edit.instructions}</Disclosure.Panel>
@@ -343,7 +349,6 @@ const Created = ({edit}) => {
 };
 
 const Edit = ({edit, canEdit, eds, setEds}) => {
-  const navigate = useNavigate();
   const flash = useFlash();
   async function deleteEdit(e){
     if(confirm("Are you sure you want to delete this edit? This can't be undone")){

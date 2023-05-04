@@ -1,8 +1,10 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthProvider';
 
 export const LogIn = () => {
+    const location = useLocation();
+    const hasPreviousState = location.key !== "default";
     const { login } = useAuth();
     const navigate = useNavigate();
     const [loginData, setLoginData] = useState({
@@ -11,7 +13,6 @@ export const LogIn = () => {
     });
 
     const handleChange = (e) => {
-        // console.log(`${e.target.name}: ${e.target.value}`);
         setLoginData( oldData => {
             return {
                 ...oldData,
@@ -22,31 +23,11 @@ export const LogIn = () => {
 
     async function handleSubmit(e){
         e.preventDefault();
-        console.log(loginData)
         const result = await login(loginData.login, loginData.password);
         if(result !== 'error' && result !== 'fail'){
-            console.log(result);
-            navigate(`/${result.username}`);
+            if(hasPreviousState) navigate(-1);
+            else navigate(`/${result.username}`);
         }
-        // const response = await fetch("/api/tokens", {
-        //     method: "POST",
-        //     headers: {
-        //         Authorization: `Basic ${loginData.login}:${loginData.password}`
-        //     }
-        // });
-        // if(response.ok){
-        //     localStorage.setItem('accessToken', response.json.token);
-        // }else{
-            //hi
-        // }
-        // .then(response => {
-        //     if(response.status)
-        //     response.json()})
-        // .then(response => {
-        //     // console.log(response);
-        // })
-        // /api/tokens POST basic auth login:password
-        // save the response json .token into context 
     };
 
     return (

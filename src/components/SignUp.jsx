@@ -17,7 +17,6 @@ export const SignUp = () => {
     const flash = useFlash();
 
     const handleChange = (e) => {
-        // console.log(`${e.target.name}: ${e.target.value}`);
         setSignupData( oldData => {
             return {
                 ...oldData,
@@ -31,7 +30,6 @@ export const SignUp = () => {
                 e.target.classList.add('outline', 'outline-2', 'outline-red-700');
             }
             if(signupData.password === e.target.value){
-                // console.log('im here');
                 e.target.classList.remove('outline', 'outline-2', 'outline-red-700');
             }
         }
@@ -39,7 +37,6 @@ export const SignUp = () => {
 
     async function handleSubmit(e){
         e.preventDefault();
-        // console.log(signupData);
         const response = await fetch('/api/users', {
             method: 'POST',
             headers: {"Content-Type":"application/json"},
@@ -55,15 +52,12 @@ export const SignUp = () => {
             navigate("/login");
         }else{
             const r = await response.json();
-            // console.log(r, r.message)
-            // alert(r.message); // flash this!
             flash(r.message,'bg-red-100 border border-red-400 text-red-700');
         }
     }
 
     async function createTempAccount(e){
         let now = 0;
-        console.log(now);
         let response = {status: 500};
         do {
             now = Date.now();
@@ -81,7 +75,6 @@ export const SignUp = () => {
 
         const result = await login(now, now);
         if(!(result==='error' || result==='fail')){
-            console.log(result);
             navigate(`/${now}`);
         }
     }
