@@ -10,6 +10,8 @@ import 'diff2html/bundles/css/diff2html.min.css';
 import { TrashIcon } from '@heroicons/react/24/solid'
 import { useFlash } from '../contexts/FlashProvider';
 import { PermissionsModal } from './PermissionsModal';
+import defaultAvi from '/src/assets/avatars/av4.jpg';
+import foodPattern from "/src/assets/patterns/japanese.png";
 
 export const recipeLoader = async ({ params }) => {
   const { recipe_id, username } = params;
@@ -75,7 +77,7 @@ export default function Recipe(){
     <div className="relative w-screen bg-stone-50 p-8">
       <div className="lg:flex lg:items-center lg:justify-between pb-5">
         <div className="min-w-0 flex-1">
-          <h3 className="text-xl hover:text-indigo-800"><Link to={`/${recipe_data.owner}`}><img className="inline w-6 h-6 ml-2 rounded-full" src={recipe_data.owner_avatar ? recipe_data.owner_avatar : '/src/assets/avatars/av4.jpg'} />{` ${recipe_data.owner}`}/</Link></h3>
+          <h3 className="text-xl hover:text-indigo-800"><Link to={`/${recipe_data.owner}`}><img className="inline w-6 h-6 ml-2 rounded-full" src={recipe_data.owner_avatar ? recipe_data.owner_avatar : defaultAvi} />{` ${recipe_data.owner}`}/</Link></h3>
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">{recipe_data.timeline_items.edits[0].title}</h2>
           <div className="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
             <div className="mt-0 text-sm text-gray-500">Last modified on {recipe_data.last_modified}</div>
@@ -171,7 +173,7 @@ const RecipeDetails = ({ recipe, edits, setEdits }) => {
     return(
   <div className="md:w-7/12 w-full px-2 bg-stone-50 pb-16">
       <div className="h-40 bg-red-300">
-        <img src={recipeEditData.img_url? recipeEditData.img_url : "/src/assets/patterns/japanese.png"} className="object-cover mix-blend-multiply h-full w-full"/>
+        <img src={recipeEditData.img_url? recipeEditData.img_url : foodPattern} className="object-cover mix-blend-multiply h-full w-full"/>
       </div>
       <form onSubmit={handleEditSubmit} id="editRecipe">
         <div>
@@ -207,7 +209,7 @@ const RecipeDetails = ({ recipe, edits, setEdits }) => {
   return (
     <div className="md:w-7/12 w-full px-2 bg-stone-50 pb-16">
       <div className="h-40 bg-red-300">
-        <img src={recipeEditData.img_url? recipeEditData.img_url : "/src/assets/patterns/japanese.png"} className="object-cover mix-blend-multiply h-full w-full"/>
+        <img src={recipeEditData.img_url? recipeEditData.img_url : foodPattern} className="object-cover mix-blend-multiply h-full w-full"/>
       </div>
       <div className="relative">
       {recipe.can_edit && <button hidden={isEditing} onClick={handleEditClick} className="absolute p-2 right-0 mx-4 rounded-full text-center outline outline-2 outline-gray-500 hover:bg-gray-500"><PencilIcon className="text-gray-500 w-6 h-6 hover:text-white"/></button>}
@@ -325,7 +327,7 @@ const Experiment = ({experiment, canExperiment, canEdit, exps, setExps }) => {
   <Disclosure as="li" className="relative border-l border-gray-200 pb-10 pl-6">
     <div className="absolute -left-2 top-2 rounded-full w-4 h-4 bg-gray-300"/>
     <Disclosure.Button as="div" className="flex flex-col hover:bg-indigo-50">
-      <p><Link className="text-md text-gray-500 hover:text-indigo-600" to={`/${experiment.commit_by}`}><img className="inline w-4 h-4 rounded-full" src={experiment.commit_by_avatar ? experiment.commit_by_avatar : '/src/assets/avatars/av4.jpg'}/> {experiment.commit_by}/</Link></p>
+      <p><Link className="text-md text-gray-500 hover:text-indigo-600" to={`/${experiment.commit_by}`}><img className="inline w-4 h-4 rounded-full" src={experiment.commit_by_avatar ? experiment.commit_by_avatar : defaultAvi}/> {experiment.commit_by}/</Link></p>
       <h5 className="text-lg font-bold">{experiment.commit_msg}</h5>
       <small>{experiment.commit_date.toLocaleString()}</small>
       </Disclosure.Button>
@@ -345,7 +347,7 @@ const Created = ({edit}) => {
   <Disclosure as="li" className="pl-6 relative">
     <div className="absolute -left-2 top-2 rounded-full w-4 h-4 bg-indigo-400"/>
     <Disclosure.Button as="div" className="flex flex-col hover:bg-indigo-50">
-      <p><Link className="text-md text-gray-500 hover:text-indigo-600" to={`/${edit.commit_by}`}><img className="inline w-4 h-4 rounded-full" src={edit.commit_by_avatar ? edit.commit_by_avatar : '/src/assets/avatars/av4.jpg'}/> {edit.commit_by}/</Link></p>
+      <p><Link className="text-md text-gray-500 hover:text-indigo-600" to={`/${edit.commit_by}`}><img className="inline w-4 h-4 rounded-full" src={edit.commit_by_avatar ? edit.commit_by_avatar : defaultAvi}/> {edit.commit_by}/</Link></p>
       <h5 className="text-lg font-bold">Recipe created</h5>
       <small>{edit.commit_date.toLocaleString()}</small>
     </Disclosure.Button>
@@ -382,7 +384,7 @@ const Edit = ({edit, canEdit, eds, setEds, setRecalcDiff}) => {
   <Disclosure as="li" className="relative pb-10 pl-6 border-l border-gray-200">
     <div className="absolute -left-2 top-2 rounded-full w-4 h-4 bg-rose-200"/>
     <Disclosure.Button as="div" className="group relative flex flex-col hover:bg-indigo-50">
-      <p><Link className="text-md text-gray-500 hover:text-indigo-600" to={`/${edit.commit_by}`}><img className="inline w-4 h-4 rounded-full" src={edit.commit_by_avatar ? edit.commit_by_avatar : '/src/assets/avatars/av4.jpg'}/> {edit.commit_by}/</Link></p>
+      <p><Link className="text-md text-gray-500 hover:text-indigo-600" to={`/${edit.commit_by}`}><img className="inline w-4 h-4 rounded-full" src={edit.commit_by_avatar ? edit.commit_by_avatar : defaultAvi}/> {edit.commit_by}/</Link></p>
       <h5 className="text-lg font-bold">Recipe edited</h5>
       <small>{edit.commit_date.toLocaleString()}</small>
       </Disclosure.Button>

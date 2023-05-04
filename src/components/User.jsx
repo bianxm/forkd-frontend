@@ -19,13 +19,13 @@ export default function User(){
           <Link to="/settings">
         <img 
           className="rounded-full block h-36 w-36"
-          src={user.img_url? user.img_url : "/src/assets/avatars/av4.jpg"}
+          src={user.img_url? user.img_url : "/av4.jpg"}
         />
         <div className="absolute hidden group-hover:block bg-gray-300 bottom-0 right-0 rounded-full w-10 h-10 mr-2 mb-2 p-2.5"><Cog8ToothIcon className="text-gray-700"/></div>
         </Link>:
         <img 
           className="rounded-full block h-36 w-36"
-          src="/src/assets/avatars/av4.jpg"
+          src="/av4.jpg"
         />
         }
         </div>
@@ -103,14 +103,14 @@ export const RecipeCard = ({ recipe, is_viewer_owner, myRecipes, setMyRecipes, f
     <Link to={`/${recipe.owner}/${recipe.id}`}>
       <div className="flex outline outline-1 outline-gray-300 rounded-lg py-2 md:py-0 md:outline-0">
       <div className="hidden md:block md:h-36 md:w-36 mix-blend-multiply bg-red-200 shrink-0">
-      <img src="/src/assets/patterns/japanese.png" 
+      <img src="/pattern.png" 
         className="object-none mix-blend-multiply"
       /></div>
       <div className="flex flex-col justify-center mx-4">
         <small className="text-gray-600">{recipe.last_modified.toLocaleString()}</small>
         {featured && 
         <p className="font-bold">
-          <img className="align-baseline inline w-4 h-4 rounded-full" src={recipe.owner_avatar ? recipe.owner_avatar : '/src/assets/avatars/av4.jpg'}/> 
+          <img className="align-baseline inline w-4 h-4 rounded-full" src={recipe.owner_avatar ? recipe.owner_avatar : '/av4.jpg'}/> 
           {`  ${recipe.owner}`}/</p>}
         <h3 className="font-bold text-xl">{recipe.title}</h3>
         <p>{recipe.description}</p> 

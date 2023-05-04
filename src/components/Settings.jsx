@@ -25,7 +25,7 @@ export function ChangeAvatar(){
     const flash = useFlash();
     let currentAv = user.img_url ? user.img_url : 'av4';
     let usingDefault = false;
-    if(currentAv && currentAv.startsWith('/src/assets/avatars/')){
+    if(currentAv && currentAv.startsWith('/av')){
         usingDefault = true;
         currentAv = currentAv.substring(20,23);
     }
@@ -37,10 +37,10 @@ export function ChangeAvatar(){
         let response = null;
         if(chosenAv!=='upload'){
             response = await apiReq('PATCH',`/api/users/${user.id}`,'',{
-                img_url: `/src/assets/avatars/${chosenAv}.jpg`
+                img_url: `/${chosenAv}.jpg`
             });
             if(response.status===200){
-                setUser(oldData => ({...oldData, img_url: `/src/assets/avatars/${chosenAv}.jpg`,}));
+                setUser(oldData => ({...oldData, img_url: `/${chosenAv}.jpg`,}));
                 flash('Avatar changed!','bg-green-100 border border-green-400 text-green-700');
             }
         }else if(chosenAv==='upload') {
@@ -63,7 +63,7 @@ export function ChangeAvatar(){
                 {avatars.map(av =>(
                     <RadioGroup.Option key={av} value={av}>
                         <div className="p-4 w-fit h-fit ui-checked:bg-lime-200">
-                            <img className ="w-16 h-16 md:w-32 md:h-32" src={`/src/assets/avatars/${av}.jpg`} />
+                            <img className ="w-16 h-16 md:w-32 md:h-32" src={`/${av}.jpg`} />
                         </div>
                     </RadioGroup.Option>
                 ))}

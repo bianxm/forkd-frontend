@@ -1,8 +1,10 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthProvider';
+import { useFlash } from '../contexts/FlashProvider';
 
 export const LogIn = () => {
+    const flash = useFlash();
     const location = useLocation();
     const hasPreviousState = location.key !== "default";
     const { login } = useAuth();
@@ -27,13 +29,15 @@ export const LogIn = () => {
         if(result !== 'error' && result !== 'fail'){
             if(hasPreviousState) navigate(-1);
             else navigate(`/${result.username}`);
+        }else{
+            flash('Log in unsuccessful. Check your username/email or password.','bg-red-100 border border-red-400 text-red-700');
         }
     };
 
     return (
         <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                <Link to="/"><img className="mx-auto h-10 w-auto" src="/src/assets/fork.png" alt="Forkd."/></Link>
+                <Link to="/"><img className="mx-auto h-10 w-auto" src='/fork.png' alt="Forkd."/></Link>
                 <h2 className="mt-4 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Log in to your account</h2>
             </div>
             <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">

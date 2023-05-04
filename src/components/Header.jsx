@@ -1,7 +1,6 @@
 import { Fragment } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
-import { Disclosure, Menu, Transition } from '@headlessui/react'
-// import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Menu, Transition } from '@headlessui/react'
 import { Bars3Icon } from '@heroicons/react/24/outline'
 import { useAuth } from '../contexts/AuthProvider';
 
@@ -36,12 +35,12 @@ export default function Header(){
                 <div className="flex flex-shrink-0 items-center">
                   <img
                     className="block h-10 w-auto lg:hidden"
-                    src="/src/assets/fork.png"
+                    src='/fork.png'
                     alt="Forkd"
                   />
                   <img
                     className="hidden h-10 w-auto lg:block"
-                    src="/src/assets/fork.png"
+                    src='/fork.png'
                     alt="Forkd"
                   />
                   <h1 className="text-stone-50 text-2xl ml-2 font-serif">Forkd.</h1>
@@ -84,7 +83,7 @@ export default function Header(){
                       <span className="sr-only">Open user menu</span>
                       <img
                         className="h-9 w-9 rounded-full"
-                        src={user.img_url ? user.img_url : "/src/assets/avatars/av4.jpg"}
+                        src={user.img_url ? user.img_url : "/av4.jpg"}
                         alt=""
                       /> </>:
                       <><span className="sr-only">Open login menu</span>
