@@ -46,10 +46,10 @@ export default function Recipe(){
   async function handleFork(e){
     e.preventDefault();
     const response = await apiReq('POST','/api/recipes','',{
-      title: recipe_data.timeline_items.edits[0].title,
-      description: recipe_data.timeline_items.edits[0].description,
-      ingredients: recipe_data.timeline_items.edits[0].ingredients,
-      instructions: recipe_data.timeline_items.edits[0].instructions,
+      title: edits[0].title,
+      description: edits[0].description,
+      ingredients: edits[0].ingredients,
+      instructions: edits[0].instructions,
       url: recipe_data.source_url,
       forked_from: recipe_data.id
     });
@@ -76,9 +76,9 @@ export default function Recipe(){
       <div className="lg:flex lg:items-center lg:justify-between pb-5">
         <div className="min-w-0 flex-1">
           <h3 className="text-xl hover:text-indigo-800"><Link to={`/${recipe_data.owner}`}><img className="inline w-6 h-6 ml-2 rounded-full" src={recipe_data.owner_avatar ? recipe_data.owner_avatar : '/av4.jpg'} />{` ${recipe_data.owner}`}/</Link></h3>
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">{recipe_data.timeline_items.edits[0].title}</h2>
+          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">{edits[0].title}</h2>
           <div className="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
-            <div className="mt-0 text-sm text-gray-500">Last modified on {recipe_data.last_modified}</div>
+            <div className="mt-0 text-sm text-gray-500">Last modified on {experiments ? (edits[0].commit_date > experiments[0].commit_date ? edits[0].commit_date.toLocaleString() : experiments[0].commit_date.toLocaleString() ) : edits[0].commit_date.toLocaleString() }</div>
             {recipe_data.forked_from && <div className="mt-0 text-sm text-gray-500">Forked from <Link to={`/${recipe_data.forked_from_username}/${recipe_data.forked_from}`} className="hover:text-indigo-700 font-bold">{recipe_data.forked_from_username}/</Link></div>}
             {recipe_data.source_url && <div className="mt-0 text-sm text-gray-500">Adapted from <a href={recipe_data.source_url} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-700">{recipe_data.source_url}</a></div>}
           </div>
@@ -106,26 +106,27 @@ export default function Recipe(){
 
 const RecipeDetails = ({ recipe, edits, setEdits }) => {
   const flash = useFlash();
-  const recipe_details = recipe.timeline_items.edits[0]
+  // const recipe_details = recipe.timeline_items.edits[0]
   const [isEditing, setIsEditing] = useState(false);
   const [recipeEditData, setRecipeEditData] = useState({
-    title: recipe_details.title,
-    description: recipe_details.description,
-    ingredients: recipe_details.ingredients,
-    instructions: recipe_details.instructions,
-    img_url: recipe_details.img_url,
+    title: edits[0].title,
+    description: edits[0].description,
+    ingredients: edits[0].ingredients,
+    instructions: edits[0].instructions,
+    img_url: edits[0].img_url,
   });
   const handleEditClick = () => {
+    setRecipeEditData(edits[0]);
     setIsEditing(true);
   };
   async function handleEditSubmit(e){
     e.preventDefault();
-    setIsEditing(false);
+    // setIsEditing(false);
     // check that *something* has been changed
-    if(recipe_details.title === recipeEditData.title &&
-    ((recipe_details.description === recipeEditData.description) &&
-    (recipe_details.ingredients === recipeEditData.ingredients)) &&
-    (recipe_details.instructions === recipeEditData.instructions)){
+    if(edits[0].title === recipeEditData.title &&
+    ((edits[0].description === recipeEditData.description) &&
+    (edits[0].ingredients === recipeEditData.ingredients)) &&
+    (edits[0].instructions === recipeEditData.instructions)){
       return;
     }
     // send API call
@@ -150,6 +151,8 @@ const RecipeDetails = ({ recipe, edits, setEdits }) => {
       }
       setEdits(oldData => [{...json, commit_date: new Date(response.json.commit_date),
       diffHtml: curr_diffHtml}, ...oldData]);
+      setRecipeEditData(edits[0]);
+      setIsEditing(false);
       flash('Edit added!','bg-green-100 border border-green-400 text-green-700');
     } else{
       flash('Error adding edit.','bg-red-100 border border-red-400 text-red-700');
@@ -211,14 +214,14 @@ const RecipeDetails = ({ recipe, edits, setEdits }) => {
       </div>
       <div className="relative">
       {recipe.can_edit && <button hidden={isEditing} onClick={handleEditClick} className="absolute p-2 right-0 mx-4 rounded-full text-center outline outline-2 outline-gray-500 hover:bg-gray-500"><PencilIcon className="text-gray-500 w-6 h-6 hover:text-white"/></button>}
-      <div className="m-4 whitespace-break-spaces">{recipeEditData.description}</div>
+      <div className="m-4 whitespace-break-spaces">{edits[0].description}</div>
       <div className="w-full p-2">
         <h4 className="font-serif text-bold text-xl"> Ingredients</h4>
-        <div className="px-4 mx-4 whitespace-break-spaces">{recipeEditData.ingredients}</div>
+        <div className="px-4 mx-4 whitespace-break-spaces">{edits[0].ingredients}</div>
       </div>
       <div className="w-full p-2">
         <h4 className="font-serif text-bold text-xl">Instructions</h4>
-        <div className="px-4  mx-4 whitespace-pre-wrap">{recipeEditData.instructions}</div>
+        <div className="px-4  mx-4 whitespace-pre-wrap">{edits[0].instructions}</div>
       </div>
       </div>
     </div>

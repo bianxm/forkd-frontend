@@ -23,16 +23,11 @@ const convertUPermissionToDropdown = (permission) => {
 };
 
 const UserPermissionRow = ({userPermission, setUserPermissions, recipeId}) => {
-    // console.log(userPermission)
-    // console.log(convertUPermissionToDropdown(userPermission));
     const [userPermissionDD, setUserPermissionDD] = useState(convertUPermissionToDropdown(userPermission));
-    // console.log(userPermissionDD)
     const [isEditing, setIsEditing] = useState(false);
     async function editPermission(e){
         e.preventDefault();
         setIsEditing(false);
-        console.log(userPermissionDD);
-        console.log(convertDropdownToUPermission(userPermissionDD));
         const response = await apiReq('PUT',`/api/recipes/${recipeId}/permissions/${userPermission.user_id}`,'',convertDropdownToUPermission(userPermissionDD));
         if(response.status!==200){
             alert('unsuccessful');
@@ -43,7 +38,6 @@ const UserPermissionRow = ({userPermission, setUserPermissions, recipeId}) => {
     async function deletePermission(e){
         e.preventDefault();
         const response = await apiReq('DELETE', `/api/recipes/${recipeId}/permissions/${userPermission.user_id}`);
-        // console.log( `/api/recipes/${recipeId}/permissions/${userPermission.user_id}`);
         if(response.status===200){
             setUserPermissions(oldData => oldData.filter(d => d.username !== userPermission.username));
         }
@@ -82,7 +76,6 @@ const NewPermission = ({userPermissions, setUserPermissions, recipeId}) => {
             // send to server!
             const newPermission = {username: usernameField, ...convertDropdownToUPermission(userPermissionDD)};
             const response = await apiReq('POST',`/api/recipes/${recipeId}/permissions`,'',newPermission);
-            console.log(await response.json)
             if(response.status===200){
                 setIsAdding(false);
                 // if server says ok:
@@ -135,7 +128,6 @@ const GeneralPermission = ({globalPermission, setGlobalPermission, recipeId}) =>
     const [isGenAccessDisabled, setIsGenAccessDisabled] = useState(true);
     const [globalPermissionDD, setGlobalPermissionDD] = useState(convertGPermissiontoDropdown(globalPermission));
     async function editGlobalPermission(){
-        console.log(convertDropdownToGPermission(globalPermissionDD))
         setIsGenAccessDisabled(true);
         // call to api
         const response = await apiReq('PUT',`/api/recipes/${recipeId}/permissions`,'',convertDropdownToGPermission(globalPermissionDD));
@@ -164,7 +156,6 @@ export const PermissionsModal = ({recipeId}) => {
         const getPermissions = async () => {
             const response = await apiReq('GET',`/api/recipes/${recipeId}/permissions`);
             const data = response.json;
-            console.log('Permissions!',data);
             setGlobalPermission({
                 is_experiments_public: data.is_experiments_public,
                 is_public: data.is_public,
@@ -173,8 +164,6 @@ export const PermissionsModal = ({recipeId}) => {
         };
         getPermissions();
     }, []);
-    console.log(globalPermission);
-    console.log(userPermissions);
     return(
     <>
         Users with access
