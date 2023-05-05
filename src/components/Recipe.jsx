@@ -42,6 +42,8 @@ export default function Recipe(){
   
   const [edits, setEdits] = useState(recipe_data.timeline_items.edits);
   const [experiments, setExperiments] = useState(recipe_data.timeline_items.experiments ? recipe_data.timeline_items.experiments : null);
+  console.log(edits)
+  console.log(experiments)
   
   async function handleFork(e){
     e.preventDefault();
@@ -51,7 +53,7 @@ export default function Recipe(){
       ingredients: edits[0].ingredients,
       instructions: edits[0].instructions,
       url: recipe_data.source_url,
-      forked_from: recipe_data.id
+      forked_from: recipe_data.id,
     });
     if(response.status===201){
         navigate(`/${user.username}`);
@@ -78,7 +80,7 @@ export default function Recipe(){
           <h3 className="text-xl hover:text-indigo-800"><Link to={`/${recipe_data.owner}`}><img className="inline w-6 h-6 ml-2 rounded-full" src={recipe_data.owner_avatar ? recipe_data.owner_avatar : '/av4.jpg'} />{` ${recipe_data.owner}`}/</Link></h3>
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">{edits[0].title}</h2>
           <div className="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
-            <div className="mt-0 text-sm text-gray-500">Last modified on {experiments ? (edits[0].commit_date > experiments[0].commit_date ? edits[0].commit_date.toLocaleString() : experiments[0].commit_date.toLocaleString() ) : edits[0].commit_date.toLocaleString() }</div>
+            <div className="mt-0 text-sm text-gray-500">Last modified on {(experiments && experiments.length!==0) ? (edits[0].commit_date > experiments[0].commit_date ? edits[0].commit_date.toLocaleString() : experiments[0].commit_date.toLocaleString() ) : edits[0].commit_date.toLocaleString() }</div>
             {recipe_data.forked_from && <div className="mt-0 text-sm text-gray-500">Forked from <Link to={`/${recipe_data.forked_from_username}/${recipe_data.forked_from}`} className="hover:text-indigo-700 font-bold">{recipe_data.forked_from_username}/</Link></div>}
             {recipe_data.source_url && <div className="mt-0 text-sm text-gray-500">Adapted from <a href={recipe_data.source_url} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-700">{recipe_data.source_url}</a></div>}
           </div>
@@ -130,7 +132,7 @@ const RecipeDetails = ({ recipe, edits, setEdits }) => {
       return;
     }
     // send API call
-    const response = await apiReq('PUT',`/api/recipes/${recipe.id}`,'', recipeEditData);
+    const response = await apiReq('POST',`/api/recipes/${recipe.id}/edits`,'', recipeEditData);
     if(response.status===200){
       const json = await response.json;
       const prev = edits[0];
@@ -272,7 +274,7 @@ const RecipeTimeline = ({recipe, edits, setEdits, experiments, setExperiments}) 
 
   async function submitNewExperiment(e) {
     e.preventDefault();
-    const response = await apiReq('POST',`/api/recipes/${recipe.id}`,'', newExperimentForm);
+    const response = await apiReq('POST',`/api/recipes/${recipe.id}/experiments`,'', newExperimentForm);
     const json = response.json;
     if(response.status===200){
       setNewExperimentForm({commit_msg:"", notes:""})
