@@ -19,13 +19,13 @@ export default function User(){
           <Link to="/settings">
         <img 
           className="rounded-full block h-36 w-36"
-          src={user.img_url? user.img_url : "/av4.jpg"}
+          src={ user.img_url ? user.img_url : "/av4.jpg"}
         />
         <div className="absolute hidden group-hover:block bg-gray-300 bottom-0 right-0 rounded-full w-10 h-10 mr-2 mb-2 p-2.5"><Cog8ToothIcon className="text-gray-700"/></div>
-        </Link>:
+        </Link> :
         <img 
           className="rounded-full block h-36 w-36"
-          src="/av4.jpg"
+          src={ user_data.img_url ? user_data.img_url : "/av4.jpg"}
         />
         }
         </div>
