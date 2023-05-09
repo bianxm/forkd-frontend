@@ -42,8 +42,8 @@ export default function Recipe(){
   
   const [edits, setEdits] = useState(recipe_data.timeline_items.edits);
   const [experiments, setExperiments] = useState(recipe_data.timeline_items.experiments ? recipe_data.timeline_items.experiments : null);
-  console.log(edits)
-  console.log(experiments)
+  // console.log(edits)
+  // console.log(experiments)
   
   async function handleFork(e){
     e.preventDefault();
