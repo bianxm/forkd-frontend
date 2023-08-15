@@ -17,7 +17,7 @@ export default function Home(){
         <div className="flex flex-col pb-24 bg-stone-50">
         {!user &&    <div className="h-screen flex flex-col justify-center px-6 lg:px-8">
             <h2 className="mt-4 text-center text-5xl font-bold font-serif text-gray-900">
-                Forkd.
+                Forkd
             </h2>
             <p className="text-center text-gray-800 text-xl">Recipe Journal and Version Control</p>
             { !user && <div className="text-center">
