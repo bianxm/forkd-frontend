@@ -1,4 +1,4 @@
-name: build-on-release
+name: build-and-deploy
 
 on:
   release:
@@ -11,6 +11,7 @@ jobs:
   build-and-push: 
     runs-on: ubuntu-latest
     permissions:
+      id-token: write
       contents: read
       packages: write
     steps:
@@ -41,3 +42,12 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::841962404661:role/github-oidc-role
+          aws-region: us-east-2
+      - name: Reboot EC2 instance
+        run: |
+          aws ec2 reboot-instances --instance-ids ${{ secrets.INSTANCE_ID }}
+          
