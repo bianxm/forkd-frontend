@@ -7,7 +7,7 @@
 <figcaption>Demo video on Youtube</figcaption>
 </a>
 
-<a href="http://3.14.77.97">Live Demo Site</a>
+<a href="http://forkd.bianxm.dev">Live Demo Site</a>
 </figure>
 
 An app where users can save, record 'experiments', and track edits for recipes.
